@@ -9,16 +9,30 @@
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <!--Kopfzeile: Name des Spiels, Neues Spiel-->
-    <header class="site-header"></header>
+    <!--Die Schachuhr: links und rechts je ein Uhrgehäuse, in der Mitte das Brett-->
+    <main class="game" id="main">
+      <!--Uhrgehäuse Weiß-->
+      <section class="clock-case is-active" aria-label="Weiß">
+        <div class="dial">
+          <p class="dial-player">Weiß</p>
+          <p class="dial-state">am Zug</p>
+        </div>
+        <p class="trainer-line">Weiß beginnt. Klicke eine deiner Figuren an.</p>
+      </section>
 
-    <main id="main">
-      <!--Spielfläche: das Brett wird per JS aus board.js gebaut-->
-      <section class="game" aria-label="Spiel">
-        <div class="board" id="board"></div>
+      <!--Mitte: Name und Brett-->
+      <div class="game-centre">
+        <h1 class="wordmark">Gambit</h1>
+        <div class="board" id="board" aria-label="Schachbrett"></div>
+      </div>
 
-        <!--Seitenleiste: wer ist am Zug, Spielmodus, geschlagene Figuren, Zugliste-->
-        <aside class="game-panel" id="game-panel"></aside>
+      <!--Uhrgehäuse Schwarz-->
+      <section class="clock-case" aria-label="Schwarz">
+        <div class="dial">
+          <p class="dial-player">Schwarz</p>
+          <p class="dial-state">wartet</p>
+        </div>
+        <p class="trainer-line">Schwarz ist nach Weiß dran.</p>
       </section>
     </main>
 

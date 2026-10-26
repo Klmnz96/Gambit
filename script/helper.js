@@ -36,7 +36,7 @@ function getPieceHtml(piece) {
 function getSquareLabel(row, column, piece) {
   const squareName = getSquareName(row, column);
   if (!piece) return `${squareName}, leer`;
-  return `${squareName}, ${colorNames[piece.color]}er${piecesNames[piece.type]}`;
+  return `${squareName}, ${colorNames[piece.color]}er ${pieceNames[piece.type]}`;
 }
 
 // Buchstaben a-h in der untersten Reihe, Zahlen 1-8 in der linken Spalte
@@ -45,7 +45,7 @@ function getCoordinatesHtml(row, column) {
   if (column === 0) {
     coordinatesHtml += `<span class="coordinate coordinate-rank" aria-hidden="true">${8 - row}</span>`;
   }
-  if (row === 0) {
+  if (row === 7) {
     coordinatesHtml += `<span class="coordinate coordinate-file" aria-hidden="true">${fileLetters[column]}</span>`;
   }
   return coordinatesHtml;

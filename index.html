@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gambit – Schach lernen und spielen</title>
+    <link rel="stylesheet" href="./css/fonts.css" />
+    <link rel="stylesheet" href="./css/standard.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <!--Kopfzeile: Name des Spiels, Neues Spiel-->
+    <header class="site-header"></header>
+
+    <main id="main">
+      <!--Spielfläche: das Brett wird per JS aus board.js gebaut-->
+      <section class="game" aria-label="Spiel">
+        <div class="board" id="board"></div>
+
+        <!--Seitenleiste: wer ist am Zug, Spielmodus, geschlagene Figuren, Zugliste-->
+        <aside class="game-panel" id="game-panel"></aside>
+      </section>
+    </main>
+
+    <!--Reihenfolge wichtig: Hilfsfunktionen und Daten zuerst, script.js zuletzt-->
+    <script src="./script/helper.js"></script>
+    <script src="./script/template.js"></script>
+    <script src="./script/board.js"></script>
+    <script src="./script/moves.js"></script>
+    <script src="./script/ai.js"></script>
+    <script src="./script/script.js"></script>
+  </body>
+</html>

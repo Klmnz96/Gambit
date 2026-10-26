@@ -17,6 +17,12 @@ const colorNames = {
   black: "schwarz",
 };
 
+// Spielernamen wie auf dem Zifferblatt
+const playerNames = {
+  white: "Weiß",
+  black: "Schwarz",
+};
+
 //Reihe 0 / Spalte 4 -> "e8"
 function getSquareName(row, column) {
   return `${fileLetters[column]}${8 - row}`;

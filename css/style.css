@@ -2,3 +2,209 @@
    Seiten-Styles: Layout, Brett, Figuren, Seitenleiste
    (die Design-Tokens stehen in css/standard.css)
    ============================================ */
+
+/* Ein Brettfeld ist die Grundeinheit: Abstände und Gehäuse sind Vielfache davon */
+:root {
+  --square: min(9.5vh, 5.6vw);
+}
+
+/* ============================================
+   Spielfläche: Uhrgehäuse | Brett | Uhrgehäuse
+   ============================================ */
+.game {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: calc(var(--square) * 3) auto calc(var(--square) * 3);
+  justify-content: center;
+  align-items: center;
+  gap: var(--square);
+  padding: calc(var(--square) * 0.5);
+}
+
+.game-centre {
+  display: grid;
+  justify-items: center;
+  gap: calc(var(--square) * 0.25);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: calc(var(--square) * 0.9);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================
+   Uhrgehäuse
+   ============================================ */
+.clock-case {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: calc(var(--square) * 0.5);
+  min-height: calc(var(--square) * 7);
+  padding: calc(var(--square) * 0.5) calc(var(--square) * 0.25);
+  background: var(--surface);
+  border-radius: var(--radius);
+  opacity: 0.55;
+  transition: opacity var(--t-ui) var(--ease-out);
+}
+
+/* Das Gehäuse des Spielers am Zug ist "angeschaltet" */
+.clock-case.is-active {
+  opacity: 1;
+}
+
+.dial {
+  width: calc(var(--square) * 2.25);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: var(--square-dark);
+  color: var(--ink);
+}
+
+.clock-case.is-active .dial {
+  background: var(--dial);
+  color: var(--inverse);
+}
+
+.dial-player {
+  font-size: var(--step-lead);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.dial-state {
+  font-size: var(--step-small);
+}
+
+.trainer-line {
+  font-size: var(--step-small);
+  text-align: center;
+  line-height: var(--leading-snug);
+}
+
+/* ============================================
+   Brett
+   ============================================ */
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, var(--square));
+  grid-template-rows: repeat(8, var(--square));
+  border-radius: calc(var(--radius) * 0.5);
+  overflow: clip;
+}
+
+.square {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.square-light {
+  background: var(--square-light);
+}
+
+.square-dark {
+  background: var(--square-dark);
+}
+
+/* Figuren: eigene SVG-Silhouetten; Weiß mit dunkler Kontur, Schwarz mit heller Kontur */
+.piece {
+  width: 88%;
+  height: 88%;
+  pointer-events: none;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.piece-white {
+  fill: #fbf8f1;
+  stroke: var(--bg);
+}
+
+.piece-black {
+  fill: var(--bg);
+  stroke: var(--bg);
+}
+
+/* Koordinaten a–h und 1–8 helfen beim Lernen der Feldnamen */
+.coordinate {
+  position: absolute;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.coordinate-rank {
+  top: 0.3em;
+  left: 0.35em;
+}
+
+.coordinate-file {
+  bottom: 0.3em;
+  right: 0.4em;
+}
+
+.square-light .coordinate {
+  color: var(--square-dark);
+}
+
+.square-dark .coordinate {
+  color: var(--square-light);
+}
+
+/* ============================================
+   Handy und schmale Fenster: Gehäuse über und unter dem Brett,
+   wie eine flach liegende Schachuhr
+   ============================================ */
+@media (max-width: 59.99rem) {
+  :root {
+    --square: min(11vw, 6.5vh);
+  }
+
+  .game {
+    grid-template-columns: auto;
+    gap: calc(var(--square) * 0.5);
+  }
+
+  .game-centre {
+    order: 2;
+  }
+
+  /* Schwarz sitzt oben (gegenüber), Weiß unten beim Spieler */
+  .clock-case {
+    order: 3;
+    min-height: 0;
+    width: calc(var(--square) * 8);
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    justify-items: start;
+    padding: calc(var(--square) * 0.25);
+  }
+
+  .clock-case:last-child {
+    order: 1;
+  }
+
+  .dial {
+    width: calc(var(--square) * 2);
+  }
+
+  .dial-player {
+    font-size: var(--step-small);
+  }
+
+  .trainer-line {
+    text-align: left;
+  }
+
+  .wordmark {
+    font-size: var(--step-lead);
+  }
+}

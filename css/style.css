@@ -113,6 +113,29 @@
   background: var(--square-dark);
 }
 
+/* Felder mit eigener Figur am Zug sind anklickbar */
+.square.is-movable {
+  cursor: pointer;
+}
+
+/* Tastatur: Fokus sichtbar in Messing */
+.square:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 3px var(--accent-strong);
+}
+
+/* Der letzte Zug bleibt sichtbar: Start- und Zielfeld leicht in Messing getönt */
+.square.is-last-move {
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--accent) 45%, transparent) 0 0
+  );
+}
+
+/* Ausgewählte Figur: Messingring innen im Feld */
+.square.is-selected {
+  box-shadow: inset 0 0 0 4px var(--accent);
+}
+
 /* Figuren: eigene SVG-Silhouetten; Weiß mit dunkler Kontur, Schwarz mit heller Kontur */
 .piece {
   width: 88%;

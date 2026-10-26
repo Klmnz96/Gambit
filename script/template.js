@@ -1,10 +1,10 @@
 // Template-Funktionen: geben nur HTML zurück, ohne eigene Logik
 // (z. B. ein Feld des Bretts, eine Zeile der Zugliste)
 
-function buildSquare(row, column, piece) {
+function buildSquare(row, column, piece, stateClasses) {
   return `
     <button 
-    class="square ${getSquareColorClass(row, column)}"
+    class="square ${getSquareColorClass(row, column)} ${stateClasses}"
     type="button"
     data-row="${row}"
     data-column="${column}"

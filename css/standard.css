@@ -16,7 +16,7 @@
 
   /* ---- Brett ---- */
   --square-light: #ece6d6; /* helle Felder: Zifferblatt-Elfenbein */
-  --square-dark: #3b3a36; /* dunkle Felder: Graphit */
+  --square-dark: #7a766c; /* dunkle Felder: helles Graphit, damit schwarze Figuren sich abheben */
 
   /* ---- Schrift: Archivo (eine Familie; der Name "Gambit" in 900) ---- */
   --font-display: "Archivo", system-ui, -apple-system, sans-serif;

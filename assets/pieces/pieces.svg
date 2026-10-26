@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!-- Gambit-Figuren: eigene Silhouetten, Füllung und Kontur kommen aus dem CSS -->
+  <symbol id="pawn" viewBox="0 0 100 100">
+    <circle cx="50" cy="30" r="12" />
+    <path d="M37 45 H63 V51 H58 L66 79 H34 L42 51 H37 Z" />
+    <rect x="24" y="79" width="52" height="10" rx="3" />
+  </symbol>
+  <symbol id="rook" viewBox="0 0 100 100">
+    <path d="M29 16 H39 V23 H45 V16 H55 V23 H61 V16 H71 V35 H29 Z" />
+    <path d="M36 35 H64 L67 79 H33 Z" />
+    <rect x="24" y="79" width="52" height="10" rx="3" />
+  </symbol>
+  <symbol id="knight" viewBox="0 0 100 100">
+    <path fill-rule="evenodd" d="M33 79 C33 64 40 56 47 49 C40 52 33 54 28 50 C23 46 27 39 32 36 L45 26 C47 18 53 13 59 13 L62 6 L67 15 C75 21 78 34 76 49 C74 61 71 70 69 79 Z M52 25 a3 3 0 1 0 0.1 0 Z" />
+    <rect x="24" y="79" width="52" height="10" rx="3" />
+  </symbol>
+  <symbol id="bishop" viewBox="0 0 100 100">
+    <circle cx="50" cy="10" r="4.5" />
+    <path fill-rule="evenodd" d="M50 16 C62 26 65 40 59 50 H41 C35 40 38 26 50 16 Z M52 27 L56 30 L49 40 L45 37 Z" />
+    <path d="M37 50 H63 V56 H57 L65 79 H35 L43 56 H37 Z" />
+    <rect x="24" y="79" width="52" height="10" rx="3" />
+  </symbol>
+  <symbol id="queen" viewBox="0 0 100 100">
+    <circle cx="26" cy="22" r="5" />
+    <circle cx="50" cy="13" r="5" />
+    <circle cx="74" cy="22" r="5" />
+    <path d="M26 27 L36 52 H64 L74 27 L60 41 L50 18 L40 41 Z" />
+    <path d="M34 52 H66 V58 H60 L67 79 H33 L40 58 H34 Z" />
+    <rect x="24" y="79" width="52" height="10" rx="3" />
+  </symbol>
+  <symbol id="king" viewBox="0 0 100 100">
+    <path d="M46.5 4 H53.5 V11 H60 V18 H53.5 V26 H46.5 V18 H40 V11 H46.5 Z" />
+    <path d="M34 28 H66 L61 51 H39 Z" />
+    <path d="M34 51 H66 V57 H60 L67 79 H33 L40 57 H34 Z" />
+    <rect x="24" y="79" width="52" height="10" rx="3" />
+  </symbol>
+</svg>

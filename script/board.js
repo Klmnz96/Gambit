@@ -42,3 +42,9 @@ function createStartBoard() {
     createBackRow("white"),
   ];
 }
+
+// Figur von einem Feld auf ein anderes setzen; eine Figur auf dem Zielfeld wird dabei geschlagen
+function movePiece(board, fromRow, fromColumn, toRow, toColumn) {
+  board[toRow][toColumn] = board[fromRow][fromColumn];
+  board[fromRow][fromColumn] = null;
+}

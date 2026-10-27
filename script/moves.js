@@ -52,23 +52,74 @@ function getSlidingMoves(board, row, column, directions) {
   return targetSquares;
 }
 
-// Übergang, bis jede Figur ihre Regeln hat: überall hin, nur nicht auf eigene Figuren
-function getUnrestrictedMoves(board, row, column) {
+// Springer: acht Sprünge in L-Form (zwei Felder gerade, eins zur Seite)
+const knightJumps = [
+  { rowStep: -2, columnStep: -1 },
+  { rowStep: -2, columnStep: 1 },
+  { rowStep: -1, columnStep: -2 },
+  { rowStep: -1, columnStep: 2 },
+  { rowStep: 1, columnStep: -2 },
+  { rowStep: 1, columnStep: 2 },
+  { rowStep: 2, columnStep: -1 },
+  { rowStep: 2, columnStep: 1 },
+];
+
+// Kurzschrittige Figuren (Springer, König): jeder Schritt genau einmal, ohne weiterzugehen.
+// Ziel muss auf dem Brett liegen und darf keine eigene Figur sein.
+function getStepMoves(board, row, column, steps) {
   const piece = board[row][column];
   const targetSquares = [];
 
-  board.forEach((boardRow, targetRow) => {
-    boardRow.forEach((targetPiece, targetColumn) => {
-      const isOwnPiece = targetPiece && targetPiece.color === piece.color;
-      if (!isOwnPiece)
-        targetSquares.push({ row: targetRow, column: targetColumn });
-    });
+  steps.forEach((step) => {
+    const targetRow = row + step.rowStep;
+    const targetColumn = column + step.columnStep;
+    if (!isOnBoard(targetRow, targetColumn)) return;
+
+    const targetPiece = board[targetRow][targetColumn];
+    const isOwnPiece = targetPiece && targetPiece.color === piece.color;
+    if (!isOwnPiece)
+      targetSquares.push({ row: targetRow, column: targetColumn });
+  });
+
+  return targetSquares;
+}
+
+// Bauer: zieht geradeaus nach vorn, schlägt aber nur schräg nach vorn.
+// Weiß läuft nach oben (Reihe wird kleiner), Schwarz nach unten (Reihe wird größer).
+function getPawnMoves(board, row, column) {
+  const piece = board[row][column];
+  const forwardStep = piece.color === "white" ? -1 : 1;
+  const startRow = piece.color === "white" ? 6 : 1;
+  const targetSquares = [];
+
+  // Ein Feld vor, nur wenn es leer ist
+  const oneForwardRow = row + forwardStep;
+  if (isOnBoard(oneForwardRow, column) && !board[oneForwardRow][column]) {
+    targetSquares.push({ row: oneForwardRow, column: column });
+
+    // Zwei Felder vor, nur von der Startreihe und wenn beide Felder leer sind
+    const twoForwardRow = row + forwardStep * 2;
+    if (row === startRow && !board[twoForwardRow][column]) {
+      targetSquares.push({ row: twoForwardRow, column: column });
+    }
+  }
+
+  // Schräg vorn links und rechts, nur wenn dort eine gegnerische Figur steht
+  [-1, 1].forEach((columnStep) => {
+    const targetColumn = column + columnStep;
+    if (!isOnBoard(oneForwardRow, targetColumn)) return;
+
+    const targetPiece = board[oneForwardRow][targetColumn];
+    if (targetPiece && targetPiece.color !== piece.color) {
+      targetSquares.push({ row: oneForwardRow, column: targetColumn });
+    }
   });
 
   return targetSquares;
 }
 
 // Alle Felder, auf die die Figur auf row/column ziehen darf
+// (ob der eigene König danach im Schach steht, kommt in Stufe 4)
 function getLegalMoves(board, row, column) {
   const piece = board[row][column];
 
@@ -78,7 +129,10 @@ function getLegalMoves(board, row, column) {
     return getSlidingMoves(board, row, column, bishopDirections);
   if (piece.type === "queen")
     return getSlidingMoves(board, row, column, queenDirections);
-
-  // Springer, König, Bauer folgen als Nächstes
-  return getUnrestrictedMoves(board, row, column);
+  if (piece.type === "knight")
+    return getStepMoves(board, row, column, knightJumps);
+  // Der König zieht in dieselben acht Richtungen wie die Dame, aber nur ein Feld weit
+  if (piece.type === "king")
+    return getStepMoves(board, row, column, queenDirections);
+  return getPawnMoves(board, row, column);
 }

@@ -23,7 +23,7 @@ function isLastMoveSquare(row, column) {
   return isFrom || isTo;
 }
 
-// Zustands-Klassen für ein Feld: anklickbar, ausgewählt, letzter Zug
+// Zustands-Klassen für ein Feld: anklickbar, ausgewählt, erlaubt, letzter Zug
 function getSquareStateClasses(row, column, piece) {
   const stateClasses = [];
   if (piece && piece.color === currentColor) stateClasses.push("is-movable");
@@ -56,7 +56,7 @@ function getTrainerText() {
   }
   const piece = board[selectedSquare.row][selectedSquare.column];
   const squareName = getSquareName(selectedSquare.row, selectedSquare.column);
-  const selectionText = `Gewählt: ${colorNames[piece.color]}er ${pieceNames[piece.type]} auf ${squareName}. Klicke jetzt ein Zielfeld an.`;
+  const selectionText = `Gewählt: ${colorNames[piece.color]}er ${pieceNames[piece.type]} auf ${squareName}.`;
 
   if (legalSquares.length === 0) {
     return `${selectionText} Gerade ist kein Zug möglich, alle Wege sind versperrt. ${pieceRules[piece.type]}`;

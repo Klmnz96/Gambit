@@ -23,6 +23,17 @@ const playerNames = {
   black: "Schwarz",
 };
 
+// So zieht jede Figur - für die Trainer-Zeile
+const pieceRules = {
+  rook: "Der Turm zieht gerade: waagerecht oder senkrecht, so weit er will - aber nicht über andere Figuren.",
+  bishop:
+    "Der Läufer zieht schräg, so weit er will. Er bleibt deshalb immer auf Feldern einer Farbe.",
+  queen:
+    "Die Dame ist die stärkste Figur: Sie zieht wie Turm und Läufer zusammen.",
+  knight: "Die Regel für den Springer kommt als Nächstes.",
+  pawn: "Die Regel für den Bauer kommt als Nächstes.",
+};
+
 //Reihe 0 / Spalte 4 -> "e8"
 function getSquareName(row, column) {
   return `${fileLetters[column]}${8 - row}`;

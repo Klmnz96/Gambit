@@ -4,9 +4,16 @@ let board = [];
 let currentColor = "white";
 let selectedSquare = null; // { row, column } der gewählten Figur oder null
 let lastMove = null; // { fromRow, fromColumn, toRow, toColumn } oder null
+let legalSquares = []; // erlaubte Zielfelder der gewählten Figur
 
 function isSameSquare(square, row, column) {
   return square !== null && square.row === row && square.column === column;
+}
+
+function isLegalSquare(row, column) {
+  return legalSquares.some((legalSquare) =>
+    isSameSquare(legalSquare, row, column),
+  );
 }
 
 function isLastMoveSquare(row, column) {
@@ -22,6 +29,8 @@ function getSquareStateClasses(row, column, piece) {
   if (piece && piece.color === currentColor) stateClasses.push("is-movable");
   if (isSameSquare(selectedSquare, row, column))
     stateClasses.push("is-selected");
+  if (isLegalSquare(row, column)) stateClasses.push("is-legal");
+  if (isLegalSquare(row, column) && piece) stateClasses.push("is-capture");
   if (isLastMoveSquare(row, column)) stateClasses.push("is-last-move");
   return stateClasses.join(" ");
 }
@@ -47,7 +56,12 @@ function getTrainerText() {
   }
   const piece = board[selectedSquare.row][selectedSquare.column];
   const squareName = getSquareName(selectedSquare.row, selectedSquare.column);
-  return `Gewählt: ${colorNames[piece.color]}er ${pieceNames[piece.type]} auf ${squareName}. Klicke jetzt ein Zielfeld an.`;
+  const selectionText = `Gewählt: ${colorNames[piece.color]}er ${pieceNames[piece.type]} auf ${squareName}. Klicke jetzt ein Zielfeld an.`;
+
+  if (legalSquares.length === 0) {
+    return `${selectionText} Gerade ist kein Zug möglich, alle Wege sind versperrt. ${pieceRules[piece.type]}`;
+  }
+  return `${selectionText} ${pieceRules[piece.type]} Die Messingpunkte zeigen die erlaubten Felder.`;
 }
 
 // Das Gehäuse des Spielers am Zug ist angeschaltet, das andere wartet
@@ -91,9 +105,10 @@ function handleSquareClick(row, column) {
     selectedSquare = isSameSquare(selectedSquare, row, column)
       ? null
       : { row: row, column: column };
+    legalSquares = selectedSquare ? getLegalMoves(board, row, column) : [];
   }
-  // Anderes Feld bei gewählter Figur: ziehen (Zugregeln folgen in Stufe 3)
-  else if (selectedSquare) {
+  // Erlaubtes Zielfeld: ziehen. Klicks auf alle anderen Felder werden ignoriert.
+  else if (isLegalSquare(row, column)) {
     movePiece(board, selectedSquare.row, selectedSquare.column, row, column);
     lastMove = {
       fromRow: selectedSquare.row,
@@ -102,6 +117,7 @@ function handleSquareClick(row, column) {
       toColumn: column,
     };
     selectedSquare = null;
+    legalSquares = [];
     switchTurn();
   }
   render();

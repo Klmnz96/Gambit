@@ -136,6 +136,28 @@
   box-shadow: inset 0 0 0 4px var(--accent);
 }
 
+/* Erlaubtes Zielfeld: Messingpunkt in der Feldmitte */
+.square.is-legal {
+  cursor: pointer;
+}
+
+.square.is-legal::after {
+  content: "";
+  position: absolute;
+  width: 28%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+/* Erlaubtes Schlagen: statt Punkt ein Messingring um die gegnerische Figur */
+.square.is-legal.is-capture::after {
+  width: 88%;
+  background: none;
+  box-shadow: inset 0 0 0 4px var(--accent);
+}
+
 /* Figuren: eigene SVG-Silhouetten; Weiß mit dunkler Kontur, Schwarz mit heller Kontur */
 .piece {
   width: 88%;

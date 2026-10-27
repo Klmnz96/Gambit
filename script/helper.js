@@ -30,8 +30,10 @@ const pieceRules = {
     "Der Läufer zieht schräg, so weit er will. Er bleibt deshalb immer auf Feldern einer Farbe.",
   queen:
     "Die Dame ist die stärkste Figur: Sie zieht wie Turm und Läufer zusammen.",
-  knight: "Die Regel für den Springer kommt als Nächstes.",
-  pawn: "Die Regel für den Bauer kommt als Nächstes.",
+  knight:
+    "Der Springer zieht in L-Form: zwei Felder gerade und eins zur Seite. Als einzige Figur darf er über andere springen.",
+  king: "Der König zieht genau ein Feld in jede Richtung. Er ist die wichtigste Figur: Wird er schachmatt gesetzt, ist das Spiel verloren.",
+  pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn und zurück zieht er nie.",
 };
 
 //Reihe 0 / Spalte 4 -> "e8"

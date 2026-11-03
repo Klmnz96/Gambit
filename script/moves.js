@@ -23,32 +23,41 @@ function isOnBoard(row, column) {
   return row >= 0 && row <= 7 && column >= 0 && column <= 7;
 }
 
-// Langschrittige Figuren (Turm, Läufer, Dame): pro Richtung Feld für Feld weitergehen
-// bis der Rand oder eine Figur kommt. Gegner darf geschlagen werden, eigene Figur blockiert.
-function getSlidingMoves(board, row, column, directions) {
+// Steht auf dem Feld eine Figur der eigenen Farbe?
+function isOwnPiece(targetPiece, color) {
+  return Boolean(targetPiece) && targetPiece.color === color;
+}
+
+// Steht auf dem Feld eine Figur der Gegnerfarbe?
+function isEnemyPiece(targetPiece, color) {
+  return Boolean(targetPiece) && targetPiece.color !== color;
+}
+
+// Eine Richtung Feld für Feld ablaufen, bis Rand oder Figur kommt.
+// Gegner darf geschlagen werden (Feld zählt noch), eigene Figur blockiert (Feld zählt nicht).
+function getMovesInDirection(board, row, column, direction) {
   const piece = board[row][column];
   const targetSquares = [];
+  let targetRow = row + direction.rowStep;
+  let targetColumn = column + direction.columnStep;
 
+  while (isOnBoard(targetRow, targetColumn)) {
+    const targetPiece = board[targetRow][targetColumn];
+    if (isOwnPiece(targetPiece, piece.color)) break; // eigene Figur blockiert
+    targetSquares.push({ row: targetRow, column: targetColumn });
+    if (targetPiece) break;
+    targetRow += direction.rowStep;
+    targetColumn += direction.columnStep;
+  }
+  return targetSquares;
+}
+
+// Langschrittige Figuren (Turm, Läufer, Dame): alle ihre Richtungen zusammen
+function getSlidingMoves(board, row, column, directions) {
+  const targetSquares = [];
   directions.forEach((direction) => {
-    let targetRow = row + direction.rowStep;
-    let targetColumn = column + direction.columnStep;
-
-    while (isOnBoard(targetRow, targetColumn)) {
-      const targetPiece = board[targetRow][targetColumn];
-
-      if (targetPiece) {
-        if (targetPiece.color !== piece.color) {
-          targetSquares.push({ row: targetRow, column: targetColumn });
-        }
-        break;
-      }
-
-      targetSquares.push({ row: targetRow, column: targetColumn });
-      targetRow += direction.rowStep;
-      targetColumn += direction.columnStep;
-    }
+    targetSquares.push(...getMovesInDirection(board, row, column, direction));
   });
-
   return targetSquares;
 }
 
@@ -69,16 +78,45 @@ const knightJumps = [
 function getStepMoves(board, row, column, steps) {
   const piece = board[row][column];
   const targetSquares = [];
-
   steps.forEach((step) => {
     const targetRow = row + step.rowStep;
     const targetColumn = column + step.columnStep;
     if (!isOnBoard(targetRow, targetColumn)) return;
+    if (isOwnPiece(board[targetRow][targetColumn], piece.color)) return;
+    targetSquares.push({ row: targetRow, column: targetColumn });
+  });
+  return targetSquares;
+}
 
-    const targetPiece = board[targetRow][targetColumn];
-    const isOwnPiece = targetPiece && targetPiece.color === piece.color;
-    if (!isOwnPiece)
+// Bauer geradeaus: ein Feld vor, nur wenn es leer ist.
+// Von der Startreihe auch zwei Felder, wenn beide leer sind.
+function getPawnForwardMoves(board, row, column, forwardStep) {
+  const piece = board[row][column];
+  const startRow = piece.color === "white" ? 6 : 1;
+  const oneForward = { row: row + forwardStep, column: column };
+  const twoForward = { row: row + forwardStep * 2, column: column };
+
+  if (!isOnBoard(oneForward.row, column) || board[oneForward.row][column]) {
+    return [];
+  }
+  if (row === startRow && !board[twoForward.row][column]) {
+    return [oneForward, twoForward];
+  }
+  return [oneForward];
+}
+
+// Bauer schlägt: schräg vorn links und rechts, nur wenn dort ein Gegner steht
+function getPawnCaptureMoves(board, row, column, forwardStep) {
+  const piece = board[row][column];
+  const targetRow = row + forwardStep;
+  const targetSquares = [];
+
+  [-1, 1].forEach((columnStep) => {
+    const targetColumn = column + columnStep;
+    if (!isOnBoard(targetRow, targetColumn)) return;
+    if (isEnemyPiece(board[targetRow][targetColumn], piece.color)) {
       targetSquares.push({ row: targetRow, column: targetColumn });
+    }
   });
 
   return targetSquares;
@@ -89,33 +127,9 @@ function getStepMoves(board, row, column, steps) {
 function getPawnMoves(board, row, column) {
   const piece = board[row][column];
   const forwardStep = piece.color === "white" ? -1 : 1;
-  const startRow = piece.color === "white" ? 6 : 1;
-  const targetSquares = [];
-
-  // Ein Feld vor, nur wenn es leer ist
-  const oneForwardRow = row + forwardStep;
-  if (isOnBoard(oneForwardRow, column) && !board[oneForwardRow][column]) {
-    targetSquares.push({ row: oneForwardRow, column: column });
-
-    // Zwei Felder vor, nur von der Startreihe und wenn beide Felder leer sind
-    const twoForwardRow = row + forwardStep * 2;
-    if (row === startRow && !board[twoForwardRow][column]) {
-      targetSquares.push({ row: twoForwardRow, column: column });
-    }
-  }
-
-  // Schräg vorn links und rechts, nur wenn dort eine gegnerische Figur steht
-  [-1, 1].forEach((columnStep) => {
-    const targetColumn = column + columnStep;
-    if (!isOnBoard(oneForwardRow, targetColumn)) return;
-
-    const targetPiece = board[oneForwardRow][targetColumn];
-    if (targetPiece && targetPiece.color !== piece.color) {
-      targetSquares.push({ row: oneForwardRow, column: targetColumn });
-    }
-  });
-
-  return targetSquares;
+  const forwardMoves = getPawnForwardMoves(board, row, column, forwardStep);
+  const captureMoves = getPawnCaptureMoves(board, row, column, forwardStep);
+  return [...forwardMoves, ...captureMoves];
 }
 
 // Alle Felder, auf die die Figur auf row/column ziehen darf

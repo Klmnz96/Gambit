@@ -97,28 +97,36 @@ function switchTurn() {
   currentColor = currentColor === "white" ? "black" : "white";
 }
 
+// Eigene Figur angeklickt: auswählen, oder abwählen wenn sie schon gewählt war
+function toggleSelection(row, column) {
+  selectedSquare = isSameSquare(selectedSquare, row, column)
+    ? null
+    : { row: row, column: column };
+  legalSquares = selectedSquare ? getLegalMoves(board, row, column) : [];
+}
+
+// Gewählte Figur auf das Zielfeld ziehen, Zug merken, Spieler wechseln
+function moveSelectedPiece(row, column) {
+  movePiece(board, selectedSquare.row, selectedSquare.column, row, column);
+  lastMove = {
+    fromRow: selectedSquare.row,
+    fromColumn: selectedSquare.column,
+    toRow: row,
+    toColumn: column,
+  };
+  selectedSquare = null;
+  legalSquares = [];
+  switchTurn();
+}
+
+// Klicks auf alle anderen Felder werden ignoriert
 function handleSquareClick(row, column) {
   const piece = board[row][column];
 
-  // Eigene Figur: auswählen oder abwählen, wenn sie schon gewählt war
-  if (piece && piece.color === currentColor) {
-    selectedSquare = isSameSquare(selectedSquare, row, column)
-      ? null
-      : { row: row, column: column };
-    legalSquares = selectedSquare ? getLegalMoves(board, row, column) : [];
-  }
-  // Erlaubtes Zielfeld: ziehen. Klicks auf alle anderen Felder werden ignoriert.
-  else if (isLegalSquare(row, column)) {
-    movePiece(board, selectedSquare.row, selectedSquare.column, row, column);
-    lastMove = {
-      fromRow: selectedSquare.row,
-      fromColumn: selectedSquare.column,
-      toRow: row,
-      toColumn: column,
-    };
-    selectedSquare = null;
-    legalSquares = [];
-    switchTurn();
+  if (isOwnPiece(piece, currentColor)) {
+    toggleSelection(row, column);
+  } else if (isLegalSquare(row, column)) {
+    moveSelectedPiece(row, column);
   }
   render();
   focusSquare(row, column);

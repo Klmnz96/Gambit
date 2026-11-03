@@ -36,6 +36,25 @@ const pieceRules = {
   pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn. Zurück zieht er nie.",
 };
 
+// Gewählte Ansicht merken. try/catch: im privaten Fenster kann localStorage fehlen
+const viewModeKey = "gambit-view";
+
+function loadViewMode() {
+  try {
+    return localStorage.getItem(viewModeKey) === "2d" ? "2d" : "3d";
+  } catch {
+    return "3d";
+  }
+}
+
+function saveViewMode(mode) {
+  try {
+    localStorage.setItem(viewModeKey, mode);
+  } catch {
+    // Speichern nicht möglich: die Ansicht gilt dann nur bis zum Neuladen
+  }
+}
+
 //Reihe 0 / Spalte 4 -> "e8"
 function getSquareName(row, column) {
   return `${fileLetters[column]}${8 - row}`;

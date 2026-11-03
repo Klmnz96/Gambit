@@ -23,9 +23,9 @@ const playerNames = {
   black: "Schwarz",
 };
 
-// So zieht jede Figur - für die Trainer-Zeile
+// So zieht jede Figur: Texte für die Trainer-Zeile
 const pieceRules = {
-  rook: "Der Turm zieht gerade: waagerecht oder senkrecht, so weit er will - aber nicht über andere Figuren.",
+  rook: "Der Turm zieht gerade: waagerecht oder senkrecht, so weit er will, aber nicht über andere Figuren.",
   bishop:
     "Der Läufer zieht schräg, so weit er will. Er bleibt deshalb immer auf Feldern einer Farbe.",
   queen:
@@ -33,7 +33,7 @@ const pieceRules = {
   knight:
     "Der Springer zieht in L-Form: zwei Felder gerade und eins zur Seite. Als einzige Figur darf er über andere springen.",
   king: "Der König zieht genau ein Feld in jede Richtung. Er ist die wichtigste Figur: Wird er schachmatt gesetzt, ist das Spiel verloren.",
-  pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn und zurück zieht er nie.",
+  pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn. Zurück zieht er nie.",
 };
 
 //Reihe 0 / Spalte 4 -> "e8"

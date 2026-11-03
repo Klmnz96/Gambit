@@ -5,6 +5,8 @@ let currentColor = "white";
 let selectedSquare = null; // { row, column } der gewählten Figur oder null
 let lastMove = null; // { fromRow, fromColumn, toRow, toColumn } oder null
 let legalSquares = []; // erlaubte Zielfelder der gewählten Figur
+let viewMode = loadViewMode(); // "2d" oder "3d"
+let view3d = null; // die 3D-Ansicht, sobald sie sich angemeldet hat
 
 function isSameSquare(square, row, column) {
   return square !== null && square.row === row && square.column === column;
@@ -88,9 +90,46 @@ function focusSquare(row, column) {
   squareElement.focus();
 }
 
+function isView3dActive() {
+  return viewMode === "3d" && view3d !== null;
+}
+
+// Das 2D-Brett wird immer gebaut (Tastatur, Screenreader), die 3D-Szene nur wenn aktiv
 function render() {
   renderBoard();
   renderClocks();
+  if (isView3dActive()) view3d.render();
+}
+
+// Die 3D-Ansicht (script/three/view.js) meldet sich hier an, sobald sie geladen ist
+function registerView3d(view) {
+  view3d = view;
+  document.querySelector("#view-toggle").hidden = false;
+  applyViewMode();
+}
+
+// Ansicht sichtbar machen: Klasse am Spielfeld, Schalterzustand, 3D zeigen oder verstecken
+function applyViewMode() {
+  const isActive = isView3dActive();
+  document.querySelector("#main").classList.toggle("is-3d", isActive);
+  document
+    .querySelector("#view-toggle")
+    .setAttribute("aria-pressed", String(isActive));
+  if (isActive) view3d.show();
+  else view3d.hide();
+  render();
+}
+
+function setViewMode(mode) {
+  viewMode = mode;
+  saveViewMode(mode);
+  applyViewMode();
+}
+
+function initViewToggle() {
+  document.querySelector("#view-toggle").addEventListener("click", () => {
+    setViewMode(viewMode === "3d" ? "2d" : "3d");
+  });
 }
 
 function switchTurn() {
@@ -149,6 +188,7 @@ function initBoardClicks() {
 function init() {
   board = createStartBoard();
   initBoardClicks();
+  initViewToggle();
   render();
 }
 

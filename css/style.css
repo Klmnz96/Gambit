@@ -47,7 +47,7 @@
   padding: calc(var(--square) * 0.5) calc(var(--square) * 0.25);
   background: var(--surface);
   border-radius: var(--radius);
-  opacity: 0.55;
+  opacity: 0.7;
   transition: opacity var(--t-ui) var(--ease-out);
 }
 
@@ -63,7 +63,7 @@
   display: grid;
   place-content: center;
   text-align: center;
-  background: var(--square-dark);
+  background: var(--graphite);
   color: var(--ink);
 }
 
@@ -103,6 +103,9 @@
   position: relative;
   display: grid;
   place-items: center;
+  /* Handy: kein Doppeltipp-Zoom und kein grauer Tipp-Blitz, wir haben eigene Zustände */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .square-light {
@@ -118,10 +121,11 @@
   cursor: pointer;
 }
 
-/* Tastatur: Fokus sichtbar in Messing */
+/* Tastatur: dunkler Rahmen am Feldrand. Als outline, damit er sich nicht
+   mit dem Messingring der Auswahl (box-shadow) gegenseitig überschreibt */
 .square:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 3px var(--accent-strong);
+  outline: 3px solid var(--bg);
+  outline-offset: -3px;
 }
 
 /* Der letzte Zug bleibt sichtbar: Start- und Zielfeld leicht in Messing getönt */
@@ -131,9 +135,12 @@
   );
 }
 
-/* Ausgewählte Figur: Messingring innen im Feld */
+/* Ausgewählte Figur: Messingring innen im Feld, mit dunkler Linie,
+   damit er auch auf den grauen Feldern sichtbar ist */
 .square.is-selected {
-  box-shadow: inset 0 0 0 4px var(--accent);
+  box-shadow:
+    inset 0 0 0 4px var(--accent),
+    inset 0 0 0 6px var(--bg);
 }
 
 /* Erlaubtes Zielfeld: Messingpunkt in der Feldmitte */
@@ -148,6 +155,8 @@
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--accent);
+  /* dunkler Rand: Messing allein ist auf den grauen Feldern kaum zu sehen */
+  box-shadow: 0 0 0 2px var(--bg);
   pointer-events: none;
 }
 
@@ -155,7 +164,9 @@
 .square.is-legal.is-capture::after {
   width: 88%;
   background: none;
-  box-shadow: inset 0 0 0 4px var(--accent);
+  box-shadow:
+    inset 0 0 0 4px var(--accent),
+    inset 0 0 0 6px var(--bg);
 }
 
 /* Figuren: eigene SVG-Silhouetten; Weiß mit dunkler Kontur, Schwarz mit heller Kontur */
@@ -180,7 +191,7 @@
 /* Koordinaten a–h und 1–8 helfen beim Lernen der Feldnamen */
 .coordinate {
   position: absolute;
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1;
   pointer-events: none;
@@ -196,12 +207,13 @@
   right: 0.4em;
 }
 
+/* Kontrast mindestens 4.5:1 auf beiden Feldfarben */
 .square-light .coordinate {
-  color: var(--square-dark);
+  color: var(--graphite);
 }
 
 .square-dark .coordinate {
-  color: var(--square-light);
+  color: var(--chalk);
 }
 
 /* ============================================
@@ -237,8 +249,9 @@
     order: 1;
   }
 
+  /* Etwas größer, damit "Schwarz" in 16px nicht am Rand klebt */
   .dial {
-    width: calc(var(--square) * 2);
+    width: calc(var(--square) * 2.5);
   }
 
   .dial-player {

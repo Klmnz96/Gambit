@@ -24,8 +24,27 @@
 
       <!--Mitte: Name und Brett-->
       <div class="game-centre">
-        <h1 class="wordmark">Gambit</h1>
-        <div class="board" id="board" role="group" aria-label="Schachbrett"></div>
+        <div class="game-head">
+          <h1 class="wordmark">Gambit</h1>
+          <!--Erscheint erst, wenn die 3D-Ansicht bereit ist (ohne WebGL bleibt er versteckt)-->
+          <button
+            class="view-toggle"
+            id="view-toggle"
+            type="button"
+            aria-label="3D-Ansicht"
+            aria-pressed="false"
+            hidden
+          >
+            <span class="view-toggle-option" data-view="2d">2D</span>
+            <span class="view-toggle-option" data-view="3d">3D</span>
+          </button>
+        </div>
+
+        <!--Bühne: 2D-Brett (immer da, für Tastatur und Screenreader) und 3D-Szene übereinander-->
+        <div class="board-stage" id="board-stage">
+          <div class="board" id="board" role="group" aria-label="Schachbrett"></div>
+          <div class="board-3d" id="board-3d" aria-hidden="true"></div>
+        </div>
       </div>
 
       <!--Uhrgehäuse Schwarz-->
@@ -45,5 +64,16 @@
     <script src="./script/moves.js"></script>
     <script src="./script/ai.js"></script>
     <script src="./script/script.js"></script>
+
+    <!--3D-Ansicht: Three.js als ES-Modul. Die Import-Map sagt dem Browser, wo "three" liegt-->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./assets/vendor/three/three.module.min.js",
+          "three/addons/": "./assets/vendor/three/addons/"
+        }
+      }
+    </script>
+    <script type="module" src="./script/three/view.js"></script>
   </body>
 </html>

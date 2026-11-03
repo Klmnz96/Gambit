@@ -2,6 +2,9 @@
    1. DESIGN TOKENS  (:root-Variablen)
    ============================================ */
 :root {
+  /* Dunkle Seite: Scrollbalken und Browser-Elemente passen sich an */
+  color-scheme: dark;
+
   /* ---- Farben: "Die Schachuhr" – schwarzes Bakelit, Zifferblatt, Messing, rotes Fallblättchen ---- */
   --bg: #141312; /* Bakelit: Seitenhintergrund */
   --surface: #1f1d1a; /* Uhrgehäuse: die beiden Spieler-Seiten */
@@ -17,13 +20,15 @@
   /* ---- Brett ---- */
   --square-light: #ece6d6; /* helle Felder: Zifferblatt-Elfenbein */
   --square-dark: #7a766c; /* dunkle Felder: helles Graphit, damit schwarze Figuren sich abheben */
+  --graphite: #3b3a36; /* ausgeschaltetes Zifferblatt, Koordinaten auf hellen Feldern */
+  --chalk: #ffffff; /* Koordinaten auf dunklen Feldern (einziges Weiß mit genug Kontrast) */
 
   /* ---- Schrift: Archivo (eine Familie; der Name "Gambit" in 900) ---- */
   --font-display: "Archivo", system-ui, -apple-system, sans-serif;
   --font-body: "Archivo", system-ui, -apple-system, sans-serif;
 
   /* ---- Schriftgrößen: fünf Stufen, mehr nicht (fluid: min .. ideal .. max) ---- */
-  --step-small: 0.9375rem; /* 15px – Notizen, Bildunterschriften, Rechtliches */
+  --step-small: 1rem; /* 16px – kleinste erlaubte Größe (DA-Regel) */
   --step-body: clamp(1.0625rem, 1rem + 0.3vw, 1.125rem); /* 17–18px Fließtext */
   --step-lead: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem); /* 22–28px Fakten, Zwischentitel */
   --step-title: clamp(2rem, 1.4rem + 2.2vw, 3.25rem); /* 32–52px Überschriften */

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gambit – Schach lernen und spielen</title>
+    <title>Gambit: Schach lernen und spielen</title>
     <link rel="stylesheet" href="./css/fonts.css" />
     <link rel="stylesheet" href="./css/standard.css" />
     <link rel="stylesheet" href="./css/style.css" />
@@ -17,13 +17,15 @@
           <p class="dial-player">Weiß</p>
           <p class="dial-state">am Zug</p>
         </div>
-        <p class="trainer-line">Weiß beginnt. Klicke eine deiner Figuren an.</p>
+        <p class="trainer-line" aria-live="polite">
+          Weiß beginnt. Klicke eine deiner Figuren an.
+        </p>
       </section>
 
       <!--Mitte: Name und Brett-->
       <div class="game-centre">
         <h1 class="wordmark">Gambit</h1>
-        <div class="board" id="board" aria-label="Schachbrett"></div>
+        <div class="board" id="board" role="group" aria-label="Schachbrett"></div>
       </div>
 
       <!--Uhrgehäuse Schwarz-->
@@ -32,7 +34,7 @@
           <p class="dial-player">Schwarz</p>
           <p class="dial-state">wartet</p>
         </div>
-        <p class="trainer-line">Schwarz ist nach Weiß dran.</p>
+        <p class="trainer-line" aria-live="polite">Schwarz ist nach Weiß dran.</p>
       </section>
     </main>
 

@@ -117,14 +117,16 @@ function getTrainerText() {
     return gameStatus === "check" ? "Schach!" : "Du bist am Zug.";
   }
   const checkText = gameStatus === "check" ? `${statusTexts.check} ` : "";
-  if (!selectedSquare) return `${checkText} Klicke eine deiner Figuren an.`;
+  if (!selectedSquare) return `${checkText}Klicke eine deiner Figuren an.`;
   return `${checkText}${getSelectionText()}`;
 }
 
 // Text in der Trainer-Zeile des wartenden Spielers
 function getWaitingText() {
   if (isGameOver()) return getGameOverText();
-  return `Wartet auf ${playerNames[currentColor]}.`;
+  const waitText = `Wartet auf ${playerNames[currentColor]}.`;
+  if (lastMove?.isPromotion) return `${statusTexts.promotion} ${waitText}`;
+  return waitText;
 }
 
 // Kleine Zeile im Ziffernblatt: am Zug, wartet oder das Ergebnis
@@ -264,15 +266,22 @@ function toggleSelection(row, column) {
   legalSquares = selectedSquare ? getLegalMoves(board, row, column) : [];
 }
 
-// Gewählte Figur auf das Zielfeld ziehen, Zug merken, Spieler wechseln
-function moveSelectedPiece(row, column) {
-  movePiece(board, selectedSquare.row, selectedSquare.column, row, column);
-  lastMove = {
+// Den Zug merken, bevor er ausgeführt wird (danach ist der Bauer schon eine Dame)
+function createMoveRecord(row, column) {
+  const piece = board[selectedSquare.row][selectedSquare.column];
+  return {
     fromRow: selectedSquare.row,
     fromColumn: selectedSquare.column,
     toRow: row,
     toColumn: column,
+    isPromotion: isPromotionSquare(piece, row),
   };
+}
+
+// Gewählte Figur auf das Zielfeld ziehen, Zug merken, Spieler wechseln
+function moveSelectedPiece(row, column) {
+  lastMove = createMoveRecord(row, column);
+  movePiece(board, selectedSquare.row, selectedSquare.column, row, column);
   selectedSquare = null;
   legalSquares = [];
   switchTurn();

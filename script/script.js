@@ -8,6 +8,7 @@ let legalSquares = []; // erlaubte Zielfelder der gewählten Figur
 let viewMode = loadViewMode(); // "2d" oder "3d"
 let view3d = null; // die 3D-Ansicht, sobald sie sich angemeldet hat
 let gameStatus = "playing"; // "playing", "check", "checkmate" oder "stalemate"
+let pendingPromotion = null; // Zielfeld { row, column }, solange das Umwandlungs-Fenster offen ist
 let trainerSettings = loadTrainerSettings(); // Tipps pro Spieler: { white: true, black: false }
 
 function isSameSquare(square, row, column) {
@@ -124,7 +125,9 @@ function getTrainerText() {
 // Text in der Trainer-Zeile des wartenden Spielers
 // Hinweis zum eigenen letzten Zug, wenn er ein Sonderzug war
 function getSpecialMoveText() {
-  if (lastMove?.isPromotion) return `${statusTexts.promotion} `;
+  if (lastMove?.isPromotion) {
+    return `${statusTexts.promotion} ${promotionNames[lastMove.promotionType]}. `;
+  }
   if (lastMove?.isCastling) return `${statusTexts.castling} `;
   if (lastMove?.isEnPassant) return `${statusTexts.enPassant} `;
   return "";
@@ -274,34 +277,80 @@ function toggleSelection(row, column) {
     : [];
 }
 
-// Den Zug merken, bevor er ausgeführt wird (danach ist der Bauer schon eine Dame)
-function createMoveRecord(row, column) {
+// Welche Sonderzüge stecken in diesem Zug? (vor dem Ziehen prüfen)
+function getSpecialMoveFlags(piece, fromColumn, row, column) {
+  return {
+    isPromotion: isPromotionSquare(piece, row),
+    isCastling: isCastlingMove(piece, fromColumn, column),
+    isEnPassant: isEnPassantCapture(board, piece, fromColumn, row, column),
+  };
+}
+
+// Den Zug merken, bevor er ausgeführt wird (danach ist der Bauer schon umgewandelt)
+function createMoveRecord(row, column, promotionType) {
   const piece = board[selectedSquare.row][selectedSquare.column];
+  const fromColumn = selectedSquare.column;
   return {
     fromRow: selectedSquare.row,
-    fromColumn: selectedSquare.column,
+    fromColumn: fromColumn,
     toRow: row,
     toColumn: column,
-    isPromotion: isPromotionSquare(piece, row),
-    isCastling: isCastlingMove(piece, selectedSquare.column, column),
-    isEnPassant: isEnPassantCapture(
-      board,
-      piece,
-      selectedSquare.column,
-      row,
-      column,
-    ),
+    promotionType: promotionType,
+    ...getSpecialMoveFlags(piece, fromColumn, row, column),
   };
 }
 
 // Gewählte Figur auf das Zielfeld ziehen, Zug merken, Spieler wechseln
-function moveSelectedPiece(row, column) {
-  lastMove = createMoveRecord(row, column);
-  movePiece(board, selectedSquare.row, selectedSquare.column, row, column);
+function moveSelectedPiece(row, column, promotionType) {
+  lastMove = createMoveRecord(row, column, promotionType);
+  movePiece(
+    board,
+    selectedSquare.row,
+    selectedSquare.column,
+    row,
+    column,
+    promotionType,
+  );
   selectedSquare = null;
   legalSquares = [];
   switchTurn();
   gameStatus = getGameStatus(board, currentColor, lastMove);
+}
+
+// Umwandlungs-Fenster öffnen; gezogen wird erst, wenn eine Figur gewählt ist
+function openPromotionDialog(row, column) {
+  pendingPromotion = { row: row, column: column };
+  const dialog = document.querySelector("#promotion-dialog");
+  dialog.dataset.color = currentColor;
+  dialog.showModal();
+}
+
+// Bauer auf die letzte Reihe: erst die Figur wählen lassen, sonst direkt ziehen
+function startMove(row, column) {
+  const piece = board[selectedSquare.row][selectedSquare.column];
+  if (isPromotionSquare(piece, row)) openPromotionDialog(row, column);
+  else moveSelectedPiece(row, column);
+}
+
+// Figur im Fenster gewählt: Fenster zu, Zug ausführen, Fokus zurück aufs Brett
+function choosePromotion(type) {
+  const { row, column } = pendingPromotion;
+  document.querySelector("#promotion-dialog").close();
+  pendingPromotion = null;
+  moveSelectedPiece(row, column, type);
+  render();
+  focusSquare(row, column);
+}
+
+// Escape schließt das Fenster ohne Zug: die Figur bleibt gewählt
+function initPromotionDialog() {
+  const dialog = document.querySelector("#promotion-dialog");
+  dialog.addEventListener("cancel", () => (pendingPromotion = null));
+  dialog.querySelectorAll(".promotion-option").forEach((button) => {
+    button.addEventListener("click", () =>
+      choosePromotion(button.dataset.type),
+    );
+  });
 }
 
 // Klicks auf alle anderen Felder werden ignoriert
@@ -312,7 +361,7 @@ function handleSquareClick(row, column) {
   if (isOwnPiece(piece, currentColor)) {
     toggleSelection(row, column);
   } else if (isLegalSquare(row, column)) {
-    moveSelectedPiece(row, column);
+    startMove(row, column);
   }
   render();
   focusSquare(row, column);
@@ -338,6 +387,7 @@ function init() {
   initViewToggle();
   initTrainerToggles();
   initNewGameButton();
+  initPromotionDialog();
   render();
 }
 

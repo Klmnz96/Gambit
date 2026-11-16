@@ -23,6 +23,14 @@ const playerNames = {
   black: "Schwarz",
 };
 
+// Für den Satz "... ist jetzt eine Dame." nach der Bauernumwandlung
+const promotionNames = {
+  queen: "eine Dame",
+  rook: "ein Turm",
+  bishop: "ein Läufer",
+  knight: "ein Springer",
+};
+
 // So zieht jede Figur: Texte für die Trainer-Zeile
 const pieceRules = {
   rook: "Der Turm zieht gerade: waagerecht oder senkrecht, so weit er will, aber nicht über andere Figuren.",
@@ -41,8 +49,7 @@ const statusTexts = {
   check:
     "Schach! Dein König wird angegriffen. Rette ihn: wegziehen, den Angreifer schlagen oder eine Figur dazwischenstellen.",
   checkmate: "Schachmatt! Der König kann nicht mehr gerettet werden.",
-  promotion:
-    "Dein Bauer hat die letzte Reihe erreicht und ist jetzt eine Dame.",
+  promotion: "Dein Bauer hat die letzte Reihe erreicht und ist jetzt",
   castling:
     "Rochade! König und Turm haben zusammen gezogen, dein König steht jetzt sicherer am Rand.",
   enPassant:

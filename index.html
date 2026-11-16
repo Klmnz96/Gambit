@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#141312" />
     <title>Gambit</title>
     <link rel="stylesheet" href="./css/fonts.css" />
     <link rel="stylesheet" href="./css/standard.css" />
@@ -17,15 +18,30 @@
           <p class="dial-player">Weiß</p>
           <p class="dial-state">am Zug</p>
         </div>
-        <p class="trainer-line" aria-live="polite">
-          Weiß beginnt. Klicke eine deiner Figuren an.
-        </p>
+        <p class="trainer-line">Weiß beginnt. Klicke eine deiner Figuren an.</p>
+        <button
+          class="trainer-toggle"
+          type="button"
+          data-color="white"
+          aria-label="Tipps für Weiß"
+          aria-pressed="true"
+        >
+          <span class="trainer-toggle-on" aria-hidden="true">Tipps an</span>
+          <span class="trainer-toggle-off" aria-hidden="true">Tipps aus</span>
+        </button>
       </section>
 
       <!--Mitte: Name und Brett-->
       <div class="game-centre">
         <div class="game-head">
-          <h1 class="wordmark">Gambit</h1>
+          <button class="new-game" id="new-game" type="button" aria-label="Neue Partie">
+            <svg class="new-game-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12a8 8 0 1 0 2.6-5.9" />
+              <path d="M4 4v4.5h4.5" />
+            </svg>
+            <span class="new-game-text" aria-hidden="true">Neue Partie</span>
+          </button>
+          <h1 class="wordmark" translate="no">Gambit</h1>
           <!--Erscheint erst, wenn die 3D-Ansicht bereit ist (ohne WebGL bleibt er versteckt)-->
           <button
             class="view-toggle"
@@ -58,11 +74,23 @@
           <p class="dial-player">Schwarz</p>
           <p class="dial-state">wartet</p>
         </div>
-        <p class="trainer-line" aria-live="polite">
-          Schwarz ist nach Weiß dran.
-        </p>
+        <p class="trainer-line">Schwarz ist nach Weiß dran.</p>
+        <button
+          class="trainer-toggle"
+          type="button"
+          data-color="black"
+          aria-label="Tipps für Schwarz"
+          aria-pressed="true"
+        >
+          <span class="trainer-toggle-on" aria-hidden="true">Tipps an</span>
+          <span class="trainer-toggle-off" aria-hidden="true">Tipps aus</span>
+        </button>
       </section>
     </main>
+
+    <!--Vorleser: nur die Zeile des Spielers am Zug, damit nichts doppelt angesagt wird.
+        Außerhalb von main, damit das Gehäuse Schwarz dort das letzte Kind bleibt (Handy-Reihenfolge)-->
+    <p class="visually-hidden" id="announcer" aria-live="polite"></p>
 
     <!--Reihenfolge wichtig: Hilfsfunktionen und Daten zuerst, script.js zuletzt-->
     <script src="./script/helper.js"></script>

@@ -122,11 +122,16 @@ function getTrainerText() {
 }
 
 // Text in der Trainer-Zeile des wartenden Spielers
+// Hinweis zum eigenen letzten Zug, wenn er ein Sonderzug war
+function getSpecialMoveText() {
+  if (lastMove?.isPromotion) return `${statusTexts.promotion} `;
+  if (lastMove?.isCastling) return `${statusTexts.castling} `;
+  return "";
+}
+
 function getWaitingText() {
   if (isGameOver()) return getGameOverText();
-  const waitText = `Wartet auf ${playerNames[currentColor]}.`;
-  if (lastMove?.isPromotion) return `${statusTexts.promotion} ${waitText}`;
-  return waitText;
+  return `${getSpecialMoveText()}Wartet auf ${playerNames[currentColor]}.`;
 }
 
 // Kleine Zeile im Ziffernblatt: am Zug, wartet oder das Ergebnis
@@ -275,6 +280,7 @@ function createMoveRecord(row, column) {
     toRow: row,
     toColumn: column,
     isPromotion: isPromotionSquare(piece, row),
+    isCastling: isCastlingMove(piece, selectedSquare.column, column),
   };
 }
 

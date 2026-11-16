@@ -8,6 +8,8 @@ import { animate, stepAnimations, hasRunningAnimations } from "./motion.js";
 
 const fieldOfView = 32;
 const cameraStart = { radius: 19, polarAngle: 0.68 };
+// Halbe Brett-Diagonale samt Rahmen (4,75 · √2 ≈ 6,7) plus etwas Luft
+const boardRadius = 7;
 const cameraLimits = { minPolar: 0.2, maxPolar: 1.05, minDistance: 12, maxDistance: 26 };
 const turnDuration = 1000;
 // Weiß sitzt bei +z (Winkel 0), Schwarz gegenüber (halbe Drehung)
@@ -68,11 +70,11 @@ function addLights(scene, renderer) {
   scene.add(createKeyLight());
 }
 
-// Im Hochformat das Sichtfeld weiten, damit das Brett auch in der Breite ganz drauf passt
+// Sichtfeld so weit wählen, dass das Brett auch gedreht (Ecke zur Kamera) ganz in die Breite passt
 function getFieldOfView(aspect) {
-  if (aspect >= 1) return fieldOfView;
-  const halfAngle = THREE.MathUtils.degToRad(fieldOfView / 2);
-  return THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(halfAngle) / aspect));
+  const neededTan = boardRadius / cameraStart.radius;
+  const fittingFov = THREE.MathUtils.radToDeg(2 * Math.atan(neededTan / aspect));
+  return Math.max(fieldOfView, fittingFov);
 }
 
 function resizeStage(container) {

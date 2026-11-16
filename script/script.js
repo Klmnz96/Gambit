@@ -126,6 +126,7 @@ function getTrainerText() {
 function getSpecialMoveText() {
   if (lastMove?.isPromotion) return `${statusTexts.promotion} `;
   if (lastMove?.isCastling) return `${statusTexts.castling} `;
+  if (lastMove?.isEnPassant) return `${statusTexts.enPassant} `;
   return "";
 }
 
@@ -268,7 +269,9 @@ function toggleSelection(row, column) {
   selectedSquare = isSameSquare(selectedSquare, row, column)
     ? null
     : { row: row, column: column };
-  legalSquares = selectedSquare ? getLegalMoves(board, row, column) : [];
+  legalSquares = selectedSquare
+    ? getLegalMoves(board, row, column, lastMove)
+    : [];
 }
 
 // Den Zug merken, bevor er ausgeführt wird (danach ist der Bauer schon eine Dame)
@@ -281,6 +284,13 @@ function createMoveRecord(row, column) {
     toColumn: column,
     isPromotion: isPromotionSquare(piece, row),
     isCastling: isCastlingMove(piece, selectedSquare.column, column),
+    isEnPassant: isEnPassantCapture(
+      board,
+      piece,
+      selectedSquare.column,
+      row,
+      column,
+    ),
   };
 }
 
@@ -291,7 +301,7 @@ function moveSelectedPiece(row, column) {
   selectedSquare = null;
   legalSquares = [];
   switchTurn();
-  gameStatus = getGameStatus(board, currentColor);
+  gameStatus = getGameStatus(board, currentColor, lastMove);
 }
 
 // Klicks auf alle anderen Felder werden ignoriert

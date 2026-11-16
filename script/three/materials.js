@@ -7,6 +7,7 @@ export const palette = {
   squareLight: "#ece6d6", // helle Felder: Elfenbein
   squareDark: "#7a766c", // dunkle Felder: helles Graphit
   brass: "#b08d57", // Messing: Rahmen, Ringe, Markierungen
+  flag: "#b3261e", // Fallblättchen-Rot: nur für den König im Schach
   engraving: "#3a2c17", // Gravur der Koordinaten im Messing
   pieceWhite: "#f3ecdb", // weiße Figuren: glänzendes Elfenbein
   pieceBlack: "#2c2a27", // schwarze Figuren: Bakelit, nicht reines Schwarz
@@ -16,6 +17,14 @@ export const brassMaterial = new THREE.MeshStandardMaterial({
   color: palette.brass,
   metalness: 1,
   roughness: 0.35,
+});
+
+// Roter Ring um den König im Schach: leuchtet leicht, damit er auch im Schatten auffällt
+export const checkMaterial = new THREE.MeshStandardMaterial({
+  color: palette.flag,
+  emissive: palette.flag,
+  emissiveIntensity: 0.4,
+  roughness: 0.5,
 });
 
 export const caseMaterial = new THREE.MeshStandardMaterial({

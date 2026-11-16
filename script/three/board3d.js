@@ -2,7 +2,13 @@
 // Feld (row, column) liegt bei x = column - 3.5, z = row - 3.5. Weiß sitzt bei +z.
 // Liest Spielstand und Hilfsfunktionen aus den normalen Scripts (board, isSameSquare, ...).
 import * as THREE from "three";
-import { palette, brassMaterial, caseMaterial, focusMaterial } from "./materials.js";
+import {
+  palette,
+  brassMaterial,
+  caseMaterial,
+  focusMaterial,
+  checkMaterial,
+} from "./materials.js";
 import { createPieceMesh } from "./pieces.js";
 import { animate } from "./motion.js";
 
@@ -260,19 +266,21 @@ export function skipMoveAnimation(move) {
   lastSeenMove = move;
 }
 
-function createMarker(geometry, square) {
-  const marker = new THREE.Mesh(geometry, brassMaterial);
+function createMarker(geometry, square, material = brassMaterial) {
+  const marker = new THREE.Mesh(geometry, material);
   placeOnSquare(marker, square.row, square.column, markerHeight);
   return marker;
 }
 
-// Messingscheibe = erlaubtes Feld, Messingring = Schlagen oder gewählte Figur
-export function updateMarkers(selected, legalTargets, boardState) {
+// Messingscheibe = erlaubtes Feld, Messingring = Schlagen oder gewählte Figur,
+// roter Ring = König im Schach
+export function updateMarkers(selected, legalTargets, boardState, checkedKing) {
   markersGroup.clear();
   legalTargets.forEach((square) => {
     const isCapture = Boolean(boardState[square.row][square.column]);
     markersGroup.add(createMarker(isCapture ? ringGeometry : discGeometry, square));
   });
+  if (checkedKing) markersGroup.add(createMarker(ringGeometry, checkedKing, checkMaterial));
   if (selected) markersGroup.add(createMarker(ringGeometry, selected));
 }
 

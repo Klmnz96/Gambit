@@ -63,8 +63,10 @@ function moveCastlingRook(board, row, kingColumn) {
 }
 
 // Die Figur nach dem Zug: ein Bauer auf der letzten Reihe wird zur Dame, sonst eine Kopie mit hasMoved (neu statt ändern, damit Test-Bretter nichts verstellen)
-function getMovedPiece(piece, toRow) {
-  if (isPromotionSquare(piece, toRow)) return createPiece("queen", piece.color);
+function getMovedPiece(piece, toRow, promotionType) {
+  if (isPromotionSquare(piece, toRow)) {
+    return createPiece(promotionType, piece.color);
+  }
   return { ...piece, hasMoved: true };
 }
 
@@ -77,12 +79,20 @@ function isEnPassantCapture(board, piece, fromColumn, toRow, toColumn) {
 
 // Figur von einem Feld auf ein anderes setzen, eine Figur auf dem Zielfeld wird dabei geschlagen.
 // Bei der Rochade zieht der Turm gleich mit, bei en passant verschwindet der Bauer daneben
-function movePiece(board, fromRow, fromColumn, toRow, toColumn) {
+// promotionType: welche Figur ein Bauer auf der letzten Reihe wird (ohne Angabe die Dame)
+function movePiece(
+  board,
+  fromRow,
+  fromColumn,
+  toRow,
+  toColumn,
+  promotionType = "queen",
+) {
   const piece = board[fromRow][fromColumn];
   if (isEnPassantCapture(board, piece, fromColumn, toRow, toColumn)) {
     board[fromRow][toColumn] = null;
   }
-  board[toRow][toColumn] = getMovedPiece(piece, toRow);
+  board[toRow][toColumn] = getMovedPiece(piece, toRow, promotionType);
   board[fromRow][fromColumn] = null;
   if (isCastlingMove(piece, fromColumn, toColumn)) {
     moveCastlingRook(board, toRow, toColumn);

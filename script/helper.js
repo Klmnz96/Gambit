@@ -33,7 +33,7 @@ const pieceRules = {
   knight:
     "Der Springer zieht in L-Form: zwei Felder gerade und eins zur Seite. Als einzige Figur darf er über andere springen.",
   king: "Der König zieht genau ein Feld in jede Richtung. Er ist die wichtigste Figur: Wird er schachmatt gesetzt, ist das Spiel verloren. Einmal pro Partie darf er rochieren: zwei Felder Richtung Turm, und der Turm springt auf die andere Seite neben ihn.",
-  pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn. Zurück zieht er nie. Erreicht er die letzte Reihe, wird er zur Dame.",
+  pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn. Zurück zieht er nie. Erreicht er die letzte Reihe, wird er zur Dame. Sonderregel en passant: Zieht ein gegnerischer Bauer zwei Felder vor und landet direkt neben ihm, darf er ihn im nächsten Zug schräg dahinter schlagen.",
 };
 
 // Texte zum Spielstand für die Trainer-Zeile
@@ -45,6 +45,8 @@ const statusTexts = {
     "Dein Bauer hat die letzte Reihe erreicht und ist jetzt eine Dame.",
   castling:
     "Rochade! König und Turm haben zusammen gezogen, dein König steht jetzt sicherer am Rand.",
+  enPassant:
+    "En passant! Dein Bauer hat den gegnerischen Bauern im Vorbeigehen geschlagen.",
   stalemate:
     "Patt! Es ist kein Zug mehr möglich, aber der König steht nicht im Schach. Die Partie endet unentschieden, im Schach sagt man Remis.",
 };

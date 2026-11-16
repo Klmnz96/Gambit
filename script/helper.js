@@ -33,7 +33,7 @@ const pieceRules = {
   knight:
     "Der Springer zieht in L-Form: zwei Felder gerade und eins zur Seite. Als einzige Figur darf er über andere springen.",
   king: "Der König zieht genau ein Feld in jede Richtung. Er ist die wichtigste Figur: Wird er schachmatt gesetzt, ist das Spiel verloren.",
-  pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn. Zurück zieht er nie.",
+  pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn. Zurück zieht er nie. Erreicht er die letzte Reihe, wird er zur Dame.",
 };
 
 // Texte zum Spielstand für die Trainer-Zeile
@@ -41,6 +41,8 @@ const statusTexts = {
   check:
     "Schach! Dein König wird angegriffen. Rette ihn: wegziehen, den Angreifer schlagen oder eine Figur dazwischenstellen.",
   checkmate: "Schachmatt! Der König kann nicht mehr gerettet werden.",
+  promotion:
+    "Dein Bauer hat die letzte Reihe erreicht und ist jetzt eine Dame.",
   stalemate:
     "Patt! Es ist kein Zug mehr möglich, aber der König steht nicht im Schach. Die Partie endet unentschieden, im Schach sagt man Remis.",
 };

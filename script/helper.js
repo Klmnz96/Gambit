@@ -36,6 +36,15 @@ const pieceRules = {
   pawn: "Der Bauer zieht ein Feld geradeaus, von seiner Startreihe aus auch zwei. Schlagen darf er nur schräg nach vorn. Zurück zieht er nie.",
 };
 
+// Texte zum Spielstand für die Trainer-Zeile
+const statusTexts = {
+  check:
+    "Schach! Dein König wird angegriffen. Rette ihn: wegziehen, den Angreifer schlagen oder eine Figur dazwischenstellen.",
+  checkmate: "Schachmatt! Der König kann nicht mehr gerettet werden.",
+  stalemate:
+    "Patt! Es ist kein Zug mehr möglich, aber der König steht nicht im Schach. Die Partie endet unentschieden.",
+};
+
 // Gewählte Ansicht merken. try/catch: im privaten Fenster kann localStorage fehlen
 const viewModeKey = "gambit-view";
 

@@ -92,6 +92,47 @@
         Außerhalb von main, damit das Gehäuse Schwarz dort das letzte Kind bleibt (Handy-Reihenfolge)-->
     <p class="visually-hidden" id="announcer" aria-live="polite"></p>
 
+    <!--Bauernumwandlung: erscheint, wenn ein Bauer die letzte Reihe erreicht.
+        data-color (white/black) setzt script.js, damit die Figuren in der richtigen Farbe erscheinen-->
+    <dialog
+      class="promotion-dialog"
+      id="promotion-dialog"
+      aria-labelledby="promotion-title"
+      aria-describedby="promotion-text"
+    >
+      <h2 class="promotion-title" id="promotion-title">Bauer umwandeln</h2>
+      <p class="promotion-text" id="promotion-text">
+        Dein Bauer hat die letzte Reihe erreicht. Welche Figur soll er werden?
+        Die Dame ist fast immer die beste Wahl.
+      </p>
+      <div class="promotion-options">
+          <button class="promotion-option" type="button" data-type="queen">
+            <svg class="piece" aria-hidden="true">
+              <use href="assets/pieces/pieces.svg#queen"></use>
+            </svg>
+            <span>Dame</span>
+          </button>
+          <button class="promotion-option" type="button" data-type="rook">
+            <svg class="piece" aria-hidden="true">
+              <use href="assets/pieces/pieces.svg#rook"></use>
+            </svg>
+            <span>Turm</span>
+          </button>
+          <button class="promotion-option" type="button" data-type="bishop">
+            <svg class="piece" aria-hidden="true">
+              <use href="assets/pieces/pieces.svg#bishop"></use>
+            </svg>
+            <span>Läufer</span>
+          </button>
+          <button class="promotion-option" type="button" data-type="knight">
+            <svg class="piece" aria-hidden="true">
+              <use href="assets/pieces/pieces.svg#knight"></use>
+            </svg>
+            <span>Springer</span>
+          </button>
+      </div>
+    </dialog>
+
     <!--Reihenfolge wichtig: Hilfsfunktionen und Daten zuerst, script.js zuletzt-->
     <script src="./script/helper.js"></script>
     <script src="./script/template.js"></script>

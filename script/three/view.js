@@ -25,7 +25,7 @@ function turnIfPlayerChanged() {
 
 function renderView() {
   syncPieces(board, lastMove, selectedSquare);
-  updateMarkers(selectedSquare, legalSquares, board);
+  updateMarkers(selectedSquare, legalSquares, board, getCheckedKingSquare());
   updateLastMove();
   turnIfPlayerChanged();
   requestRender();

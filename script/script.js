@@ -7,6 +7,7 @@ let lastMove = null; // { fromRow, fromColumn, toRow, toColumn } oder null
 let legalSquares = []; // erlaubte Zielfelder der gewählten Figur
 let viewMode = loadViewMode(); // "2d" oder "3d"
 let view3d = null; // die 3D-Ansicht, sobald sie sich angemeldet hat
+let gameStatus = "playing"; // "playing", "check", "checkmate" oder "stalemate"
 
 function isSameSquare(square, row, column) {
   return square !== null && square.row === row && square.column === column;
@@ -16,6 +17,16 @@ function isLegalSquare(row, column) {
   return legalSquares.some((legalSquare) =>
     isSameSquare(legalSquare, row, column),
   );
+}
+
+function isGameOver() {
+  return gameStatus === "checkmate" || gameStatus === "stalemate";
+}
+
+// Feld des Königs am Zug, wenn er im Schach steht, sonst null (rot markiert in 2D und 3D)
+function getCheckedKingSquare() {
+  if (gameStatus !== "check" && gameStatus !== "checkmate") return null;
+  return findKing(board, currentColor);
 }
 
 function isLastMoveSquare(row, column) {
@@ -28,12 +39,15 @@ function isLastMoveSquare(row, column) {
 // Zustands-Klassen für ein Feld: anklickbar, ausgewählt, erlaubt, letzter Zug
 function getSquareStateClasses(row, column, piece) {
   const stateClasses = [];
-  if (piece && piece.color === currentColor) stateClasses.push("is-movable");
+  if (isOwnPiece(piece, currentColor) && !isGameOver())
+    stateClasses.push("is-movable");
   if (isSameSquare(selectedSquare, row, column))
     stateClasses.push("is-selected");
   if (isLegalSquare(row, column)) stateClasses.push("is-legal");
   if (isLegalSquare(row, column) && piece) stateClasses.push("is-capture");
   if (isLastMoveSquare(row, column)) stateClasses.push("is-last-move");
+  if (isSameSquare(getCheckedKingSquare(), row, column))
+    stateClasses.push("is-check");
   return stateClasses.join(" ");
 }
 
@@ -51,19 +65,37 @@ function renderBoard() {
   boardElement.innerHTML = squaresHtml;
 }
 
-// Text in der Trainer-Zeile des Spielers am Zug
-function getTrainerText() {
-  if (!selectedSquare) {
-    return "Klicke eine deiner Figuren an.";
-  }
+// Was ist gewählt, und wohin darf die Figur?
+function getSelectionText() {
   const piece = board[selectedSquare.row][selectedSquare.column];
   const squareName = getSquareName(selectedSquare.row, selectedSquare.column);
-  const selectionText = `Gewählt: ${colorNames[piece.color]}er ${pieceNames[piece.type]} auf ${squareName}.`;
+  const selectionText = `Gewählt: ${colorNames[piece.color]}er${pieceNames[piece.type]} auf ${squareName}.`;
 
   if (legalSquares.length === 0) {
-    return `${selectionText} Gerade ist kein Zug möglich, alle Wege sind versperrt. ${pieceRules[piece.type]}`;
+    return `${selectionText} Gerade ist kein Zug möglich: Der Weg ist versperrt, oder der Zug würde deinen eigenen König ins Schach stellen. ${pieceRules[piece.type]}`;
   }
   return `${selectionText} ${pieceRules[piece.type]} Die Messingpunkte zeigen die erlaubten Felder.`;
+}
+
+// Ende der Partie: bei Schachmatt gewinnt der Spieler, der nicht am Zug ist
+function getGameOverText() {
+  if (gameStatus === "stalemate") return statusTexts.stalemate;
+  const winner = playerNames[getOpponentColor(currentColor)];
+  return `${statusTexts.checkmate} ${winner} gewinnt die Partie.`;
+}
+
+// Text in der Trainer-Zeile des Spielers am Zug
+function getTrainerText() {
+  if (isGameOver()) return getGameOverText();
+  const checkText = gameStatus === "check" ? `${statusTexts.check} ` : "";
+  if (!selectedSquare) return `${checkText} Klicke eine deiner Figuren an.`;
+  return `${checkText}${getSelectionText()}`;
+}
+
+// Text in der Trainer-Zeile des wartenden Spielers
+function getWaitingText() {
+  if (isGameOver()) return getGameOverText();
+  return `Wartet auf ${playerNames[currentColor]}.`;
 }
 
 // Das Gehäuse des Spielers am Zug ist angeschaltet, das andere wartet
@@ -78,7 +110,7 @@ function renderClocks() {
       : "wartet";
     clockElement.querySelector(".trainer-line").textContent = isActive
       ? getTrainerText()
-      : `Wartet auf ${playerNames[currentColor]}.`;
+      : getWaitingText();
   });
 }
 
@@ -133,7 +165,7 @@ function initViewToggle() {
 }
 
 function switchTurn() {
-  currentColor = currentColor === "white" ? "black" : "white";
+  currentColor = getOpponentColor(currentColor);
 }
 
 // Eigene Figur angeklickt: auswählen, oder abwählen wenn sie schon gewählt war
@@ -156,10 +188,12 @@ function moveSelectedPiece(row, column) {
   selectedSquare = null;
   legalSquares = [];
   switchTurn();
+  gameStatus = getGameStatus(board, currentColor);
 }
 
 // Klicks auf alle anderen Felder werden ignoriert
 function handleSquareClick(row, column) {
+  if (isGameOver()) return;
   const piece = board[row][column];
 
   if (isOwnPiece(piece, currentColor)) {

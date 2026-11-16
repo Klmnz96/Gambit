@@ -383,6 +383,74 @@
 }
 
 /* ============================================
+   Bauernumwandlung: Auswahlfenster
+   ============================================ */
+.promotion-dialog {
+  margin: auto;
+  width: min(calc(100% - 2rem), 34rem);
+  padding: var(--space-md);
+  border: none;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.promotion-dialog::backdrop {
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+}
+
+.promotion-title {
+  font-size: var(--step-lead);
+  font-weight: 800;
+}
+
+.promotion-text {
+  margin-top: var(--space-2xs);
+  font-size: var(--step-small);
+  line-height: var(--leading-snug);
+}
+
+.promotion-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+/* Elfenbein-Kacheln wie die hellen Felder: dort sind weiße und schwarze Figuren gut zu sehen */
+.promotion-option {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3xs);
+  padding: var(--space-xs) var(--space-3xs);
+  border-radius: calc(var(--radius) * 0.5);
+  background: var(--square-light);
+  color: var(--inverse);
+  font-size: 1rem;
+  font-weight: 700;
+  transition: box-shadow var(--t-hover) var(--ease-out);
+}
+
+.promotion-option:hover {
+  box-shadow: inset 0 0 0 3px var(--accent);
+}
+
+.promotion-option .piece {
+  width: 56px;
+  height: 56px;
+}
+
+.promotion-dialog[data-color="white"] .piece {
+  fill: #fbf8f1;
+  stroke: var(--bg);
+}
+
+.promotion-dialog[data-color="black"] .piece {
+  fill: var(--bg);
+  stroke: var(--bg);
+}
+
+/* ============================================
    Handy und schmale Fenster: Gehäuse über und unter dem Brett,
    wie eine flach liegende Schachuhr
    ============================================ */
@@ -459,6 +527,11 @@
 
   .view-toggle {
     grid-column: 3;
+  }
+
+  /* Auswahlfenster: zwei mal zwei statt vier nebeneinander */
+  .promotion-options {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   /* Im Querformat-Gehäuse: Schalter unter der Trainer-Zeile, rechts */

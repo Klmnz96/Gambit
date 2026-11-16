@@ -43,9 +43,18 @@ function createStartBoard() {
   ];
 }
 
-// Figur von einem Feld auf ein anderes setzen; eine Figur auf dem Zielfeld wird dabei geschlagen
+// Bauer erreicht die letzte Reihe: Weiß oben (Reihe 0), Schwarz unten (Reihe 7)
+function isPromotionSquare(piece, row) {
+  return piece.type === "pawn" && (row === 0 || row === 7);
+}
+
+// Figur von einem Feld auf ein anderes setzen; eine Figur auf dem Zielfeld wird dabei geschlagen.
+// Ein Bauer auf der letzten Reihe wird dabei zur Dame (Bauernumwandlung)
 function movePiece(board, fromRow, fromColumn, toRow, toColumn) {
-  board[toRow][toColumn] = board[fromRow][fromColumn];
+  const piece = board[fromRow][fromColumn];
+  board[toRow][toColumn] = isPromotionSquare(piece, toRow)
+    ? createPiece("queen", piece.color)
+    : piece;
   board[fromRow][fromColumn] = null;
 }
 

@@ -233,28 +233,51 @@ function getCastlingMoves(board, row, column) {
     .map((side) => ({ row: row, column: side.kingTo }));
 }
 
+// War der letzte Zug ein Bauer, der zwei Felder vorgezogen ist?
+function isPawnDoubleStep(board, previousMove) {
+  const movedPiece = board[previousMove.toRow][previousMove.toColumn];
+  const rowDistance = Math.abs(previousMove.toRow - previousMove.fromRow);
+  return movedPiece.type === "pawn" && rowDistance === 2;
+}
+
+// En passant: Der gegnerische Bauer ist im letzten Zug zwei Felder vorgezogen
+// und steht jetzt direkt neben diesem Bauern. Geschlagen wird schräg dahinter
+function getEnPassantMoves(board, row, column, previousMove) {
+  const piece = board[row][column];
+  if (piece.type !== "pawn" || !previousMove) return [];
+  if (!isPawnDoubleStep(board, previousMove)) return [];
+  const isBeside =
+    previousMove.toRow === row &&
+    Math.abs(previousMove.toColumn - column) === 1;
+  if (!isBeside) return [];
+  const forwardStep = piece.color === "white" ? -1 : 1;
+  return [{ row: row + forwardStep, column: previousMove.toColumn }];
+}
+
 // Erlaubt sind nur Züge, nach denen der eigene König nicht im Schach steht.
 // Die Rochade kommt erst hier dazu, nicht in getPieceMoves: Sie schlägt nie,
 // und so ruft isSquareAttacked nicht endlos sich selbst auf
-function getLegalMoves(board, row, column) {
+function getLegalMoves(board, row, column, previousMove) {
   const moves = [
     ...getPieceMoves(board, row, column),
     ...getCastlingMoves(board, row, column),
+    ...getEnPassantMoves(board, row, column, previousMove),
   ];
   return moves.filter((target) => keepsKingSafe(board, row, column, target));
 }
 
 // Hat diese Farbe irgendeine Figur, die noch ziehen darf?
-function hasAnyLegalMoves(board, color) {
+function hasAnyLegalMoves(board, color, previousMove) {
   return getSquaresOfColor(board, color).some(
-    (square) => getLegalMoves(board, square.row, square.column).length > 0,
+    (square) =>
+      getLegalMoves(board, square.row, square.column, previousMove).length > 0,
   );
 }
 
 // Spielstand für die Farbe am Zug: "checkmate", "stalemate", "check" oder "playing"
-function getGameStatus(board, color) {
+function getGameStatus(board, color, previousMove) {
   const inCheck = isInCheck(board, color);
-  if (!hasAnyLegalMoves(board, color)) {
+  if (!hasAnyLegalMoves(board, color, previousMove)) {
     return inCheck ? "checkmate" : "stalemate";
   }
   return inCheck ? "check" : "playing";

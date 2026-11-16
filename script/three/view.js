@@ -25,7 +25,7 @@ function turnIfPlayerChanged() {
 
 function renderView() {
   syncPieces(board, lastMove, selectedSquare);
-  updateMarkers(selectedSquare, legalSquares, board, getCheckedKingSquare());
+  updateMarkers(selectedSquare, getVisibleLegalSquares(), board, getCheckedKingSquare());
   updateLastMove();
   turnIfPlayerChanged();
   requestRender();
@@ -36,9 +36,9 @@ function showView() {
   requestRender();
 }
 
-// Eigene Figur oder erlaubtes Zielfeld: dort zeigt der Cursor eine Hand
+// Eigene Figur oder erlaubtes Zielfeld (nur mit Tipps sichtbar): dort zeigt der Cursor eine Hand
 function isClickable(row, column) {
-  return isOwnPiece(board[row][column], currentColor) || isLegalSquare(row, column);
+  return isOwnPiece(board[row][column], currentColor) || isVisibleLegalSquare(row, column);
 }
 
 // Fokusrahmen nur bei Tastatur-Bedienung, nicht nach einem Mausklick

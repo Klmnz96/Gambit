@@ -68,10 +68,20 @@ function getMovedPiece(piece, toRow) {
   return { ...piece, hasMoved: true };
 }
 
+// En passant erkennen: ein Bauer zieht schräg auf ein leeres Feld.
+// Der geschlagene Bauer steht dann nicht dort, sondern neben dem Startfeld
+function isEnPassantCapture(board, piece, fromColumn, toRow, toColumn) {
+  const isDiagonal = fromColumn !== toColumn;
+  return piece.type === "pawn" && isDiagonal && !board[toRow][toColumn];
+}
+
 // Figur von einem Feld auf ein anderes setzen, eine Figur auf dem Zielfeld wird dabei geschlagen.
-// Bei der Rochade zieht der Turm gleich mit
+// Bei der Rochade zieht der Turm gleich mit, bei en passant verschwindet der Bauer daneben
 function movePiece(board, fromRow, fromColumn, toRow, toColumn) {
   const piece = board[fromRow][fromColumn];
+  if (isEnPassantCapture(board, piece, fromColumn, toRow, toColumn)) {
+    board[fromRow][toColumn] = null;
+  }
   board[toRow][toColumn] = getMovedPiece(piece, toRow);
   board[fromRow][fromColumn] = null;
   if (isCastlingMove(piece, fromColumn, toColumn)) {

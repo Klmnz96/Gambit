@@ -42,7 +42,7 @@ const statusTexts = {
     "Schach! Dein König wird angegriffen. Rette ihn: wegziehen, den Angreifer schlagen oder eine Figur dazwischenstellen.",
   checkmate: "Schachmatt! Der König kann nicht mehr gerettet werden.",
   stalemate:
-    "Patt! Es ist kein Zug mehr möglich, aber der König steht nicht im Schach. Die Partie endet unentschieden.",
+    "Patt! Es ist kein Zug mehr möglich, aber der König steht nicht im Schach. Die Partie endet unentschieden, im Schach sagt man Remis.",
 };
 
 // Gewählte Ansicht merken. try/catch: im privaten Fenster kann localStorage fehlen
@@ -61,6 +61,26 @@ function saveViewMode(mode) {
     localStorage.setItem(viewModeKey, mode);
   } catch {
     // Speichern nicht möglich: die Ansicht gilt dann nur bis zum Neuladen
+  }
+}
+
+// Tipps pro Spieler merken (an und aus). Ohne gespeicherten Wert: für beide an
+const trainerKey = "gambit-trainer";
+
+function loadTrainerSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(trainerKey));
+    return { white: saved?.white !== false, black: saved?.black !== false };
+  } catch {
+    return { white: true, black: true };
+  }
+}
+
+function saveTrainerSettings(settings) {
+  try {
+    localStorage.setItem(trainerKey, JSON.stringify(settings));
+  } catch {
+    // Speichern nicht möglich: die Einstellung gilt dann nur bis zum Neuladen
   }
 }
 

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gambit: Schach lernen und spielen</title>
+    <title>Gambit</title>
     <link rel="stylesheet" href="./css/fonts.css" />
     <link rel="stylesheet" href="./css/standard.css" />
     <link rel="stylesheet" href="./css/style.css" />
@@ -42,7 +42,12 @@
 
         <!--Bühne: 2D-Brett (immer da, für Tastatur und Screenreader) und 3D-Szene übereinander-->
         <div class="board-stage" id="board-stage">
-          <div class="board" id="board" role="group" aria-label="Schachbrett"></div>
+          <div
+            class="board"
+            id="board"
+            role="group"
+            aria-label="Schachbrett"
+          ></div>
           <div class="board-3d" id="board-3d" aria-hidden="true"></div>
         </div>
       </div>
@@ -53,7 +58,9 @@
           <p class="dial-player">Schwarz</p>
           <p class="dial-state">wartet</p>
         </div>
-        <p class="trainer-line" aria-live="polite">Schwarz ist nach Weiß dran.</p>
+        <p class="trainer-line" aria-live="polite">
+          Schwarz ist nach Weiß dran.
+        </p>
       </section>
     </main>
 

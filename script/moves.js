@@ -132,9 +132,9 @@ function getPawnMoves(board, row, column) {
   return [...forwardMoves, ...captureMoves];
 }
 
-// Alle Felder, auf die die Figur auf row/column ziehen darf
-// (ob der eigene König danach im Schach steht, kommt in Stufe 4)
-function getLegalMoves(board, row, column) {
+// Alle Felder, die die Figur nach ihren Zugregeln erreicht.
+// Ob der eigene König danach im Schach steht, prüft erst getLegalMoves.
+function getPieceMoves(board, row, column) {
   const piece = board[row][column];
 
   if (piece.type === "rook")
@@ -149,4 +149,78 @@ function getLegalMoves(board, row, column) {
   if (piece.type === "king")
     return getStepMoves(board, row, column, queenDirections);
   return getPawnMoves(board, row, column);
+}
+
+function getOpponentColor(color) {
+  return color === "white" ? "black" : "white";
+}
+
+// Alle Felder, auf denen eine Figur dieser Farbe steht
+function getSquaresOfColor(board, color) {
+  const squares = [];
+  board.forEach((boardRow, row) => {
+    boardRow.forEach((piece, column) => {
+      if (isOwnPiece(piece, color)) squares.push({ row: row, column: column });
+    });
+  });
+  return squares;
+}
+
+// Wo steht der König dieser Farbe?
+function findKing(board, color) {
+  return getSquaresOfColor(board, color).find(
+    (square) => board[square.row][square.column].type === "king",
+  );
+}
+
+//Kann irgendeine Figur von attackerColor im nächsten Zug auf row/column ziehen ?
+function isSquareAttacked(board, row, column, attackerColor) {
+  return getSquaresOfColor(board, attackerColor).some((square) => {
+    const targets = getPieceMoves(board, square.row, square.column);
+    return targets.some(
+      (target) => target.row === row && target.column === column,
+    );
+  });
+}
+
+// Steht der König dieser Farbe gerade im Schach?
+function isInCheck(board, color) {
+  const king = findKing(board, color);
+  return isSquareAttacked(
+    board,
+    king.row,
+    king.column,
+    getOpponentColor(color),
+  );
+}
+
+// Zug auf einer Kopie ausprobieren: steht der eigene König danach sicher?
+function keepsKingSafe(board, row, column, target) {
+  const color = board[row][column].color;
+  const testBoard = copyBoard(board);
+  movePiece(testBoard, row, column, target.row, target.column);
+  return !isInCheck(testBoard, color);
+}
+
+// Erlaubt sind nur Züge, nach denen der eigene König nicht im Schach steht
+function getLegalMoves(board, row, column) {
+  return getPieceMoves(board, row, column).filter((target) =>
+    keepsKingSafe(board, row, column, target),
+  );
+}
+
+// Hat diese Farbe irgendeine Figur, die noch ziehen darf?
+function hasAnyLegalMoves(board, color) {
+  return getSquaresOfColor(board, color).some(
+    (square) => getLegalMoves(board, square.row, square.column).length > 0,
+  );
+}
+
+// Spielstand für die Farbe am Zug: "checkmate", "stalemate", "check" oder "playing"
+function getGameStatus(board, color) {
+  const inCheck = isInCheck(board, color);
+  if (!hasAnyLegalMoves(board, color)) {
+    return inCheck ? "checkmate" : "stalemate";
+  }
+  return inCheck ? "check" : "playing";
 }

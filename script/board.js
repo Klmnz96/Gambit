@@ -48,3 +48,8 @@ function movePiece(board, fromRow, fromColumn, toRow, toColumn) {
   board[toRow][toColumn] = board[fromRow][fromColumn];
   board[fromRow][fromColumn] = null;
 }
+
+// Kopie zum Ausprobieren: neue Reihen, damit das echte Brett unverändert bleibt
+function copyBoard(board) {
+  return board.map((boardRow) => [...boardRow]);
+}

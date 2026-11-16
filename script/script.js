@@ -8,6 +8,7 @@ let legalSquares = []; // erlaubte Zielfelder der gewählten Figur
 let viewMode = loadViewMode(); // "2d" oder "3d"
 let view3d = null; // die 3D-Ansicht, sobald sie sich angemeldet hat
 let gameStatus = "playing"; // "playing", "check", "checkmate" oder "stalemate"
+let trainerSettings = loadTrainerSettings(); // Tipps pro Spieler: { white: true, black: false }
 
 function isSameSquare(square, row, column) {
   return square !== null && square.row === row && square.column === column;
@@ -17,6 +18,20 @@ function isLegalSquare(row, column) {
   return legalSquares.some((legalSquare) =>
     isSameSquare(legalSquare, row, column),
   );
+}
+
+// Hat der Spieler am Zug die Tipps eingeschaltet?
+function isTrainerOn() {
+  return trainerSettings[currentColor];
+}
+
+// Erlaubte Felder werden nur gezeigt (und vorgelesen), wenn die Tipps an sind
+function isVisibleLegalSquare(row, column) {
+  return isTrainerOn() && isLegalSquare(row, column);
+}
+
+function getVisibleLegalSquares() {
+  return isTrainerOn() ? legalSquares : [];
 }
 
 function isGameOver() {
@@ -43,12 +58,22 @@ function getSquareStateClasses(row, column, piece) {
     stateClasses.push("is-movable");
   if (isSameSquare(selectedSquare, row, column))
     stateClasses.push("is-selected");
-  if (isLegalSquare(row, column)) stateClasses.push("is-legal");
-  if (isLegalSquare(row, column) && piece) stateClasses.push("is-capture");
+  if (isVisibleLegalSquare(row, column))
+    stateClasses.push(piece ? "is-legal is-capture" : "is-legal");
   if (isLastMoveSquare(row, column)) stateClasses.push("is-last-move");
   if (isSameSquare(getCheckedKingSquare(), row, column))
     stateClasses.push("is-check");
   return stateClasses.join(" ");
+}
+
+// Für Screenreader: Zustand ans Feld-Label hängen ("e4, leer, erlaubtes Ziel")
+function getSquareStateText(row, column) {
+  let stateText = "";
+  if (isSameSquare(selectedSquare, row, column)) stateText += ", ausgewählt";
+  if (isVisibleLegalSquare(row, column)) stateText += ", erlaubtes Ziel";
+  if (isSameSquare(getCheckedKingSquare(), row, column))
+    stateText += ", im Schach";
+  return stateText;
 }
 
 function renderBoard() {
@@ -58,7 +83,8 @@ function renderBoard() {
   board.forEach((boardRow, row) => {
     boardRow.forEach((piece, column) => {
       const stateClasses = getSquareStateClasses(row, column, piece);
-      squaresHtml += buildSquare(row, column, piece, stateClasses);
+      const label = `${getSquareLabel(row, column, piece)}${getSquareStateText(row, column)}`;
+      squaresHtml += buildSquare(row, column, piece, stateClasses, label);
     });
   });
 
@@ -69,7 +95,7 @@ function renderBoard() {
 function getSelectionText() {
   const piece = board[selectedSquare.row][selectedSquare.column];
   const squareName = getSquareName(selectedSquare.row, selectedSquare.column);
-  const selectionText = `Gewählt: ${colorNames[piece.color]}er${pieceNames[piece.type]} auf ${squareName}.`;
+  const selectionText = `Gewählt: ${colorNames[piece.color]}er ${pieceNames[piece.type]} auf ${squareName}.`;
 
   if (legalSquares.length === 0) {
     return `${selectionText} Gerade ist kein Zug möglich: Der Weg ist versperrt, oder der Zug würde deinen eigenen König ins Schach stellen. ${pieceRules[piece.type]}`;
@@ -87,6 +113,9 @@ function getGameOverText() {
 // Text in der Trainer-Zeile des Spielers am Zug
 function getTrainerText() {
   if (isGameOver()) return getGameOverText();
+  if (!isTrainerOn()) {
+    return gameStatus === "check" ? "Schach!" : "Du bist am Zug.";
+  }
   const checkText = gameStatus === "check" ? `${statusTexts.check} ` : "";
   if (!selectedSquare) return `${checkText} Klicke eine deiner Figuren an.`;
   return `${checkText}${getSelectionText()}`;
@@ -98,6 +127,15 @@ function getWaitingText() {
   return `Wartet auf ${playerNames[currentColor]}.`;
 }
 
+// Kleine Zeile im Ziffernblatt: am Zug, wartet oder das Ergebnis
+function getDialStateText(color) {
+  if (gameStatus === "stalemate") return "remis";
+  if (gameStatus === "checkmate") {
+    return color === currentColor ? "verloren" : "gewonnen";
+  }
+  return color === currentColor ? "am Zug" : "wartet";
+}
+
 // Das Gehäuse des Spielers am Zug ist angeschaltet, das andere wartet
 function renderClocks() {
   ["white", "black"].forEach((color) => {
@@ -105,9 +143,8 @@ function renderClocks() {
     const isActive = color === currentColor;
 
     clockElement.classList.toggle("is-active", isActive);
-    clockElement.querySelector(".dial-state").textContent = isActive
-      ? "am Zug"
-      : "wartet";
+    clockElement.querySelector(".dial-state").textContent =
+      getDialStateText(color);
     clockElement.querySelector(".trainer-line").textContent = isActive
       ? getTrainerText()
       : getWaitingText();
@@ -126,11 +163,27 @@ function isView3dActive() {
   return viewMode === "3d" && view3d !== null;
 }
 
+// Tipps-Schalter in beiden Gehäusen: Zustand zeigen
+function renderTrainerToggles() {
+  document.querySelectorAll(".trainer-toggle").forEach((button) => {
+    const isOn = trainerSettings[button.dataset.color];
+    button.setAttribute("aria-pressed", String(isOn));
+  });
+}
+
+// Nur die Zeile des Spielers am Zug vorlesen und nur wenn sie sich ändert
+function announce(text) {
+  const announcer = document.querySelector("#announcer");
+  if (announcer.textContent !== text) announcer.textContent = text;
+}
+
 // Das 2D-Brett wird immer gebaut (Tastatur, Screenreader), die 3D-Szene nur wenn aktiv
 function render() {
   renderBoard();
   renderClocks();
   if (isView3dActive()) view3d.render();
+  renderTrainerToggles();
+  announce(getTrainerText());
 }
 
 // Die 3D-Ansicht (script/three/view.js) meldet sich hier an, sobald sie geladen ist
@@ -162,6 +215,41 @@ function initViewToggle() {
   document.querySelector("#view-toggle").addEventListener("click", () => {
     setViewMode(viewMode === "3d" ? "2d" : "3d");
   });
+}
+
+function toggleTrainer(color) {
+  trainerSettings[color] = !trainerSettings[color];
+  saveTrainerSettings(trainerSettings);
+  render();
+}
+
+function initTrainerToggles() {
+  document.querySelectorAll(".trainer-toggle").forEach((button) => {
+    button.addEventListener("click", () => toggleTrainer(button.dataset.color));
+  });
+}
+
+// Alles auf Anfang: neues Brett, Weiß beginnt, nichts gewählt
+function resetGame() {
+  board = createStartBoard();
+  currentColor = "white";
+  selectedSquare = null;
+  lastMove = null;
+  legalSquares = [];
+  gameStatus = "playing";
+  render();
+}
+
+// Eine laufende Partie nicht aus Versehen wegwerfen: vorher nachfragen
+function confirmNewGame() {
+  const isRunning = lastMove !== null && !isGameOver();
+  const question = "Neue Partie starten? Die laufende Partie geht verloren.";
+  if (isRunning && !confirm(question)) return;
+  resetGame();
+}
+
+function initNewGameButton() {
+  document.querySelector("#new-game").addEventListener("click", confirmNewGame);
 }
 
 function switchTurn() {
@@ -223,6 +311,8 @@ function init() {
   board = createStartBoard();
   initBoardClicks();
   initViewToggle();
+  initTrainerToggles();
+  initNewGameButton();
   render();
 }
 

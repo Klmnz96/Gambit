@@ -202,11 +202,46 @@ function keepsKingSafe(board, row, column, target) {
   return !isInCheck(testBoard, color);
 }
 
-// Erlaubt sind nur Züge, nach denen der eigene König nicht im Schach steht
-function getLegalMoves(board, row, column) {
-  return getPieceMoves(board, row, column).filter((target) =>
-    keepsKingSafe(board, row, column, target),
+// Die zwei Rochaden: Turm-Spalte, Zielspalte des Königs, Felder die leer sein müssen,
+// Felder die der König überquert (dürfen nicht angegriffen sein)
+const castlingSides = [
+  { rookColumn: 7, kingTo: 6, emptyColumns: [5, 6], kingPath: [5, 6] },
+  { rookColumn: 0, kingTo: 2, emptyColumns: [1, 2, 3], kingPath: [3, 2] },
+];
+
+// Turm noch nie gezogen, Weg frei, und der König läuft über kein angegriffenes Feld
+function canCastle(board, row, side, color) {
+  const rook = board[row][side.rookColumn];
+  if (!isOwnPiece(rook, color) || rook.type !== "rook" || rook.hasMoved) {
+    return false;
+  }
+  const enemyColor = getOpponentColor(color);
+  const isPathEmpty = side.emptyColumns.every((column) => !board[row][column]);
+  const isPathSafe = side.kingPath.every(
+    (column) => !isSquareAttacked(board, row, column, enemyColor),
   );
+  return isPathEmpty && isPathSafe;
+}
+
+// Rochade: König noch nie gezogen und gerade nicht im Schach
+function getCastlingMoves(board, row, column) {
+  const king = board[row][column];
+  if (king.type !== "king" || king.hasMoved) return [];
+  if (isInCheck(board, king.color)) return [];
+  return castlingSides
+    .filter((side) => canCastle(board, row, side, king.color))
+    .map((side) => ({ row: row, column: side.kingTo }));
+}
+
+// Erlaubt sind nur Züge, nach denen der eigene König nicht im Schach steht.
+// Die Rochade kommt erst hier dazu, nicht in getPieceMoves: Sie schlägt nie,
+// und so ruft isSquareAttacked nicht endlos sich selbst auf
+function getLegalMoves(board, row, column) {
+  const moves = [
+    ...getPieceMoves(board, row, column),
+    ...getCastlingMoves(board, row, column),
+  ];
+  return moves.filter((target) => keepsKingSafe(board, row, column, target));
 }
 
 // Hat diese Farbe irgendeine Figur, die noch ziehen darf?

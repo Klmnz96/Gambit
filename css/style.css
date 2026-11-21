@@ -5,7 +5,8 @@
 
 /* Ein Brettfeld ist die Grundeinheit: Abstände und Gehäuse sind Vielfache davon */
 :root {
-  --square: min(9.5vh, 5.6vw);
+  /* 8.8vh statt 9.5vh: unter dem Brett braucht das Zugprotokoll noch eine Zeile */
+  --square: min(8.8vh, 5.6vw);
 }
 
 /* ============================================
@@ -146,6 +147,53 @@
 
 .game.is-3d .board-3d {
   display: block;
+}
+
+/* ============================================
+   Zugprotokoll: Papierstreifen unter dem Brett
+   ============================================ */
+/* So breit wie das Brett, läuft nach rechts weiter (script.js scrollt zum neuesten Zug).
+   Abstand oben: Die 3D-Szene ragt eine halbe Feldbreite unter das Brett */
+.move-list {
+  width: calc(var(--square) * 8);
+  margin-top: calc(var(--square) * 0.25);
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: var(--space-2xs) var(--space-sm);
+  list-style: none;
+  background: var(--dial);
+  color: var(--inverse);
+  border-radius: calc(var(--radius) * 0.5);
+  font-size: var(--step-small);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.move-list:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Vor dem ersten Zug: kurzer Hinweis statt leerem Streifen */
+.move-list:empty::before {
+  content: "Noch kein Zug gespielt.";
+  color: var(--graphite);
+}
+
+.move-pair {
+  display: flex;
+  gap: var(--space-2xs);
+}
+
+/* Zugnummer leiser, die Züge selbst kräftig */
+.move-number {
+  color: var(--graphite);
+}
+
+.move {
+  font-weight: 700;
 }
 
 /* In 3D bleibt das 2D-Brett unsichtbar da: Tastatur und Screenreader nutzen es weiter */

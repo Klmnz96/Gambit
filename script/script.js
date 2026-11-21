@@ -13,6 +13,9 @@ let trainerSettings = loadTrainerSettings(); // Tipps pro Spieler: { white: true
 let moveList = []; // alle Züge der Partie in Notation: ["e4", "e5", "Sf3", ...]
 let halfMoveClock = 0; // Halbzüge seit dem letzten Bauernzug oder Schlagen (50-Züge-Regel)
 let positionCounts = {}; // wie oft jede Stellung schon auf dem Brett stand (Wiederholung)
+let gameMode = loadGameMode(); // "twoPlayers" oder "computer"
+let computerTimer = null; // läuft, während der Computer "nachdenkt"
+const computerColor = "black"; // gegen den Computer spielst du immer Weiß
 
 function isSameSquare(square, row, column) {
   return square !== null && square.row === row && square.column === column;
@@ -22,6 +25,27 @@ function isLegalSquare(row, column) {
   return legalSquares.some((legalSquare) =>
     isSameSquare(legalSquare, row, column),
   );
+}
+
+// Spielt bei dieser Farbe der Computer?
+function isComputerColor(color) {
+  return gameMode === "computer" && color === computerColor;
+}
+
+function isComputerTurn() {
+  return isComputerColor(currentColor);
+}
+
+// Name auf dem Zifferblatt und in den Texten: "Weiß", "Schwarz" oder "Computer"
+function getPlayerName(color) {
+  return isComputerColor(color) ? "Computer" : playerNames[color];
+}
+
+// Von welcher Seite aus schaut man aufs Brett? Gegen den Computer immer von Weiß aus
+function getViewColor() {
+  return gameMode === "computer"
+    ? getOpponentColor(computerColor)
+    : currentColor;
 }
 
 // Hat der Spieler am Zug die Tipps eingeschaltet?
@@ -46,6 +70,11 @@ function isGameOver() {
   return gameStatus === "checkmate" || isDraw();
 }
 
+// Darf man diese Figur gerade anklicken? Eigene Figur, Partie läuft, und kein Computer am Zug
+function isMovablePiece(piece) {
+  return isOwnPiece(piece, currentColor) && !isGameOver() && !isComputerTurn();
+}
+
 // Feld des Königs am Zug, wenn er im Schach steht, sonst null (rot markiert in 2D und 3D)
 function getCheckedKingSquare() {
   if (gameStatus !== "check" && gameStatus !== "checkmate") return null;
@@ -62,8 +91,7 @@ function isLastMoveSquare(row, column) {
 // Zustands-Klassen für ein Feld: anklickbar, ausgewählt, erlaubt, letzter Zug
 function getSquareStateClasses(row, column, piece) {
   const stateClasses = [];
-  if (isOwnPiece(piece, currentColor) && !isGameOver())
-    stateClasses.push("is-movable");
+  if (isMovablePiece(piece)) stateClasses.push("is-movable");
   if (isSameSquare(selectedSquare, row, column))
     stateClasses.push("is-selected");
   if (isVisibleLegalSquare(row, column))
@@ -134,13 +162,14 @@ function getSelectionText() {
 // Ende der Partie: bei Schachmatt gewinnt der Spieler, der nicht am Zug ist
 function getGameOverText() {
   if (isDraw()) return statusTexts[gameStatus];
-  const winner = playerNames[getOpponentColor(currentColor)];
+  const winner = getPlayerName(getOpponentColor(currentColor));
   return `${statusTexts.checkmate} ${winner} gewinnt die Partie.`;
 }
 
 // Text in der Trainer-Zeile des Spielers am Zug
 function getTrainerText() {
   if (isGameOver()) return getGameOverText();
+  if (isComputerTurn()) return "Der Computer überlegt …";
   if (!isTrainerOn()) {
     return gameStatus === "check" ? "Schach!" : "Du bist am Zug.";
   }
@@ -162,7 +191,7 @@ function getSpecialMoveText() {
 
 function getWaitingText() {
   if (isGameOver()) return getGameOverText();
-  return `${getSpecialMoveText()}Wartet auf ${playerNames[currentColor]}.`;
+  return `${getSpecialMoveText()}Wartet auf ${getPlayerName(currentColor)}.`;
 }
 
 // Kleine Zeile im Ziffernblatt: am Zug, wartet oder das Ergebnis
@@ -181,6 +210,8 @@ function renderClocks() {
     const isActive = color === currentColor;
 
     clockElement.classList.toggle("is-active", isActive);
+    clockElement.querySelector(".dial-player").textContent =
+      getPlayerName(color);
     clockElement.querySelector(".dial-state").textContent =
       getDialStateText(color);
     clockElement.querySelector(".trainer-line").textContent = isActive
@@ -206,6 +237,7 @@ function renderTrainerToggles() {
   document.querySelectorAll(".trainer-toggle").forEach((button) => {
     const isOn = trainerSettings[button.dataset.color];
     button.setAttribute("aria-pressed", String(isOn));
+    button.hidden = isComputerColor(button.dataset.color);
   });
 }
 
@@ -270,6 +302,7 @@ function initTrainerToggles() {
 
 // Alles auf Anfang: neues Brett, Weiß beginnt, nichts gewählt
 function resetGame() {
+  clearTimeout(computerTimer);
   moveList = [];
   halfMoveClock = 0;
   positionCounts = {};
@@ -283,16 +316,33 @@ function resetGame() {
   render();
 }
 
-// Eine laufende Partie nicht aus Versehen wegwerfen: vorher nachfragen
-function confirmNewGame() {
+// Fenster "Neue Partie": Hinweis nur, wenn gerade eine Partie läuft
+function openModeDialog() {
   const isRunning = lastMove !== null && !isGameOver();
-  const question = "Neue Partie starten? Die laufende Partie geht verloren.";
-  if (isRunning && !confirm(question)) return;
+  document.querySelector("#mode-warning").hidden = !isRunning;
+  document.querySelector("#mode-dialog").showModal();
+}
+
+// Modus gewählt: merken und neue Partie starten
+function startNewGame(mode) {
+  document.querySelector("#mode-dialog").close();
+  gameMode = mode;
+  saveGameMode(mode);
   resetGame();
 }
 
+function initModeDialog() {
+  const dialog = document.querySelector("#mode-dialog");
+  dialog.querySelectorAll(".mode-option").forEach((button) => {
+    button.addEventListener("click", () => startNewGame(button.dataset.mode));
+  });
+  dialog
+    .querySelector(".mode-cancel")
+    .addEventListener("click", () => dialog.close());
+}
+
 function initNewGameButton() {
-  document.querySelector("#new-game").addEventListener("click", confirmNewGame);
+  document.querySelector("#new-game").addEventListener("click", openModeDialog);
 }
 
 function switchTurn() {
@@ -374,6 +424,22 @@ function moveSelectedPiece(row, column, promotionType) {
   gameStatus = getGameStatus(board, currentColor, lastMove);
   moveList.push(`${notation}${checkSigns[gameStatus]}`);
   applyDrawRules(countPosition());
+  scheduleComputerMove();
+}
+
+// Der Computer zieht wie ein Spieler: Figur wählen, dann aufs Zielfeld.
+// Erreicht sein Bauer die letzte Reihe, nimmt er immer die Dame
+function makeComputerMove() {
+  const move = chooseComputerMove(board, currentColor, lastMove);
+  selectedSquare = { row: move.fromRow, column: move.fromColumn };
+  moveSelectedPiece(move.toRow, move.toColumn, "queen");
+  render();
+}
+
+// Ist jetzt der Computer dran, zieht er nach einer kurzen Pause (sonst wirkt es zu abrupt)
+function scheduleComputerMove() {
+  if (!isComputerTurn() || isGameOver()) return;
+  computerTimer = setTimeout(makeComputerMove, 700);
 }
 
 // Umwandlungs-Fenster öffnen; gezogen wird erst, wenn eine Figur gewählt ist
@@ -414,7 +480,7 @@ function initPromotionDialog() {
 
 // Klicks auf alle anderen Felder werden ignoriert
 function handleSquareClick(row, column) {
-  if (isGameOver()) return;
+  if (isGameOver() || isComputerTurn()) return;
   const piece = board[row][column];
 
   if (isOwnPiece(piece, currentColor)) {
@@ -445,6 +511,7 @@ function init() {
   initViewToggle();
   initTrainerToggles();
   initNewGameButton();
+  initModeDialog();
   initPromotionDialog();
   resetGame();
 }

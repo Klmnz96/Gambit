@@ -66,6 +66,16 @@
           ></div>
           <div class="board-3d" id="board-3d" aria-hidden="true"></div>
         </div>
+
+        <!--Zugprotokoll: ein Papierstreifen, pro Eintrag ein Zugpaar Weiß/Schwarz, nichts wird gelöscht.
+            role="list": Safari vergisst sonst bei list-style: none, dass es eine Liste ist-->
+        <ol
+          class="move-list"
+          id="move-list"
+          role="list"
+          aria-label="Zugprotokoll"
+          tabindex="0"
+        ></ol>
       </div>
 
       <!--Uhrgehäuse Schwarz-->
@@ -138,6 +148,7 @@
     <script src="./script/template.js"></script>
     <script src="./script/board.js"></script>
     <script src="./script/moves.js"></script>
+    <script src="./script/notation.js"></script>
     <script src="./script/ai.js"></script>
     <script src="./script/script.js"></script>
 

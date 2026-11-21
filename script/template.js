@@ -15,3 +15,8 @@ function buildSquare(row, column, piece, stateClasses, label) {
     </button>
     `;
 }
+
+// Ein Eintrag im Zugprotokoll: "1. e4 e5" (blackMove ist leer, solange Schwarz noch nicht gezogen hat)
+function buildMovePair(moveNumber, whiteMove, blackMove) {
+  return `<li class="move-pair"><span class="move-number">${moveNumber}.</span><span class="move">${whiteMove}</span><span class="move">${blackMove}</span></li>`;
+}

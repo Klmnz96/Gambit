@@ -433,7 +433,8 @@
 /* ============================================
    Bauernumwandlung: Auswahlfenster
    ============================================ */
-.promotion-dialog {
+.promotion-dialog,
+.mode-dialog {
   margin: auto;
   width: min(calc(100% - 2rem), 34rem);
   padding: var(--space-md);
@@ -443,11 +444,13 @@
   color: var(--ink);
 }
 
-.promotion-dialog::backdrop {
+.promotion-dialog::backdrop,
+.mode-dialog::backdrop {
   background: color-mix(in srgb, var(--bg) 75%, transparent);
 }
 
-.promotion-title {
+.promotion-title,
+.mode-title {
   font-size: var(--step-lead);
   font-weight: 800;
 }
@@ -496,6 +499,63 @@
 .promotion-dialog[data-color="black"] .piece {
   fill: var(--bg);
   stroke: var(--bg);
+}
+
+/* ============================================
+   Neue Partie: Spielmodus wählen
+   ============================================ */
+.mode-warning {
+  margin-top: var(--space-2xs);
+  color: var(--error);
+  font-size: var(--step-small);
+}
+
+.mode-options {
+  display: grid;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+/* Elfenbein-Kacheln wie im Umwandlungs-Fenster: Name groß, Erklärung darunter */
+.mode-option {
+  display: grid;
+  gap: var(--space-3xs);
+  padding: var(--space-sm);
+  border-radius: calc(var(--radius) * 0.5);
+  background: var(--square-light);
+  color: var(--inverse);
+  text-align: left;
+  transition: box-shadow var(--t-hover) var(--ease-out);
+}
+
+.mode-option:hover {
+  box-shadow: inset 0 0 0 3px var(--accent);
+}
+
+.mode-option-name {
+  font-size: var(--step-body);
+  font-weight: 800;
+}
+
+.mode-option-text {
+  font-size: var(--step-small);
+  line-height: var(--leading-snug);
+}
+
+.mode-cancel {
+  margin-top: var(--space-sm);
+  min-height: 44px;
+  padding-inline: var(--space-sm);
+  border: 2px solid var(--muted);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+  transition: border-color var(--t-hover) var(--ease-out);
+}
+
+.mode-cancel:hover {
+  border-color: var(--ink);
 }
 
 /* ============================================

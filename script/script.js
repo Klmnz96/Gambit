@@ -11,6 +11,8 @@ let gameStatus = "playing"; // "playing", "check", "checkmate" oder "stalemate"
 let pendingPromotion = null; // Zielfeld { row, column }, solange das Umwandlungs-Fenster offen ist
 let trainerSettings = loadTrainerSettings(); // Tipps pro Spieler: { white: true, black: false }
 let moveList = []; // alle Züge der Partie in Notation: ["e4", "e5", "Sf3", ...]
+let halfMoveClock = 0; // Halbzüge seit dem letzten Bauernzug oder Schlagen (50-Züge-Regel)
+let positionCounts = {}; // wie oft jede Stellung schon auf dem Brett stand (Wiederholung)
 
 function isSameSquare(square, row, column) {
   return square !== null && square.row === row && square.column === column;
@@ -36,8 +38,12 @@ function getVisibleLegalSquares() {
   return isTrainerOn() ? legalSquares : [];
 }
 
+function isDraw() {
+  return drawStatuses.includes(gameStatus);
+}
+
 function isGameOver() {
-  return gameStatus === "checkmate" || gameStatus === "stalemate";
+  return gameStatus === "checkmate" || isDraw();
 }
 
 // Feld des Königs am Zug, wenn er im Schach steht, sonst null (rot markiert in 2D und 3D)
@@ -127,7 +133,7 @@ function getSelectionText() {
 
 // Ende der Partie: bei Schachmatt gewinnt der Spieler, der nicht am Zug ist
 function getGameOverText() {
-  if (gameStatus === "stalemate") return statusTexts.stalemate;
+  if (isDraw()) return statusTexts[gameStatus];
   const winner = playerNames[getOpponentColor(currentColor)];
   return `${statusTexts.checkmate} ${winner} gewinnt die Partie.`;
 }
@@ -161,7 +167,7 @@ function getWaitingText() {
 
 // Kleine Zeile im Ziffernblatt: am Zug, wartet oder das Ergebnis
 function getDialStateText(color) {
-  if (gameStatus === "stalemate") return "remis";
+  if (isDraw()) return "remis";
   if (gameStatus === "checkmate") {
     return color === currentColor ? "verloren" : "gewonnen";
   }
@@ -265,12 +271,15 @@ function initTrainerToggles() {
 // Alles auf Anfang: neues Brett, Weiß beginnt, nichts gewählt
 function resetGame() {
   moveList = [];
+  halfMoveClock = 0;
+  positionCounts = {};
   board = createStartBoard();
   currentColor = "white";
   selectedSquare = null;
   lastMove = null;
   legalSquares = [];
   gameStatus = "playing";
+  countPosition();
   render();
 }
 
@@ -323,10 +332,40 @@ function createMoveRecord(row, column, promotionType) {
   };
 }
 
+// 50-Züge-Regel: zählt Halbzüge, ein Bauernzug oder Schlagen setzt wieder auf 0.
+// Vor dem Ziehen aufrufen, danach ist die geschlagene Figur schon weg
+function updateHalfMoveClock(move) {
+  const piece = board[move.fromRow][move.fromColumn];
+  const isReset = piece.type === "pawn" || isCaptureMove(board, move);
+  halfMoveClock = isReset ? 0 : halfMoveClock + 1;
+}
+
+// Aktuelle Stellung mitzählen und zurückgeben, wie oft sie jetzt schon da war
+function countPosition() {
+  const positionKey = getPositionKey(board, currentColor);
+  positionCounts[positionKey] = (positionCounts[positionKey] ?? 0) + 1;
+  return positionCounts[positionKey];
+}
+
+// Welches Remis greift gerade? null, wenn keins
+function getDrawStatus(repetitionCount) {
+  if (hasInsufficientMaterial(board)) return "insufficientMaterial";
+  if (halfMoveClock >= 100) return "fiftyMoves";
+  if (repetitionCount >= 3) return "repetition";
+  return null;
+}
+
+// Remis-Regeln nach dem Zug prüfen. Matt und Patt gehen vor
+function applyDrawRules(repetitionCount) {
+  if (isGameOver()) return;
+  gameStatus = getDrawStatus(repetitionCount) ?? gameStatus;
+}
+
 // Gewählte Figur auf das Zielfeld ziehen, Zug merken und ins Protokoll schreiben, Spieler wechseln
 function moveSelectedPiece(row, column, promotionType) {
   const move = createMoveRecord(row, column, promotionType);
   const notation = getMoveNotation(board, move, lastMove);
+  updateHalfMoveClock(move);
   movePiece(board, move.fromRow, move.fromColumn, row, column, promotionType);
   lastMove = move;
   selectedSquare = null;
@@ -334,6 +373,7 @@ function moveSelectedPiece(row, column, promotionType) {
   switchTurn();
   gameStatus = getGameStatus(board, currentColor, lastMove);
   moveList.push(`${notation}${checkSigns[gameStatus]}`);
+  applyDrawRules(countPosition());
 }
 
 // Umwandlungs-Fenster öffnen; gezogen wird erst, wenn eine Figur gewählt ist
@@ -401,13 +441,12 @@ function initBoardClicks() {
 }
 
 function init() {
-  board = createStartBoard();
   initBoardClicks();
   initViewToggle();
   initTrainerToggles();
   initNewGameButton();
   initPromotionDialog();
-  render();
+  resetGame();
 }
 
 init();

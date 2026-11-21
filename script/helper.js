@@ -31,6 +31,24 @@ const promotionNames = {
   knight: "ein Springer",
 };
 
+// Buchstaben fürs Zugprotokoll (deutsche Notation). Der Bauer hat keinen
+const pieceLetters = {
+  king: "K",
+  queen: "D",
+  rook: "T",
+  bishop: "L",
+  knight: "S",
+  pawn: "",
+};
+
+// Zeichen hinter dem Zug im Protokoll: + Schach, # Schachmatt
+const checkSigns = {
+  playing: "",
+  check: "+",
+  checkmate: "#",
+  stalemate: "",
+};
+
 // So zieht jede Figur: Texte für die Trainer-Zeile
 const pieceRules = {
   rook: "Der Turm zieht gerade: waagerecht oder senkrecht, so weit er will, aber nicht über andere Figuren.",

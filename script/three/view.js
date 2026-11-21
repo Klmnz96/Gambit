@@ -13,14 +13,15 @@ import {
 import { initPicking } from "./picking.js";
 
 const container = document.querySelector("#board-3d");
-let shownColor = currentColor; // Seite, auf die die Kamera gerade schaut
+let shownColor = getViewColor(); // Seite, auf die die Kamera gerade schaut
 let usesKeyboard = false; // zuletzt Tastatur (true) oder Maus/Finger (false) benutzt?
 
-// Kamera drehen, wenn inzwischen der andere Spieler am Zug ist
+// Kamera drehen, wenn inzwischen der andere Spieler am Zug ist (gegen den Computer bleibt sie bei dir)
 function turnIfPlayerChanged() {
-  if (currentColor === shownColor) return;
-  shownColor = currentColor;
-  turnCameraTo(currentColor);
+  const viewColor = getViewColor();
+  if (viewColor === shownColor) return;
+  shownColor = viewColor;
+  turnCameraTo(viewColor);
 }
 
 function renderView() {
@@ -38,7 +39,7 @@ function showView() {
 
 // Eigene Figur oder erlaubtes Zielfeld (nur mit Tipps sichtbar): dort zeigt der Cursor eine Hand
 function isClickable(row, column) {
-  return isOwnPiece(board[row][column], currentColor) || isVisibleLegalSquare(row, column);
+  return isMovablePiece(board[row][column]) || isVisibleLegalSquare(row, column);
 }
 
 // Fokusrahmen nur bei Tastatur-Bedienung, nicht nach einem Mausklick
@@ -76,7 +77,7 @@ async function loadLabelFont() {
 
 async function start() {
   await loadLabelFont();
-  const stage = createStage(container, currentColor);
+  const stage = createStage(container, getViewColor());
   createBoard(stage.scene);
   const handlers = { onSquare: handleSquareClick, isClickable };
   initPicking(stage.renderer.domElement, stage.camera, getPickTargets(), handlers);

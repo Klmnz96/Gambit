@@ -132,6 +132,27 @@ function saveTrainerSettings(settings) {
   }
 }
 
+// Spielmodus merken: "twoPlayers" (zu zweit) oder "computer". Ohne gespeicherten Wert: zu zweit
+const gameModeKey = "gambit-mode";
+
+function loadGameMode() {
+  try {
+    return localStorage.getItem(gameModeKey) === "computer"
+      ? "computer"
+      : "twoPlayers";
+  } catch {
+    return "twoPlayers";
+  }
+}
+
+function saveGameMode(mode) {
+  try {
+    localStorage.setItem(gameModeKey, mode);
+  } catch {
+    // Speichern nicht möglich: der Modus gilt dann nur bis zum Neuladen
+  }
+}
+
 //Reihe 0 / Spalte 4 -> "e8"
 function getSquareName(row, column) {
   return `${fileLetters[column]}${8 - row}`;

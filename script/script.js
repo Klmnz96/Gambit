@@ -10,6 +10,7 @@ let view3d = null; // die 3D-Ansicht, sobald sie sich angemeldet hat
 let gameStatus = "playing"; // "playing", "check", "checkmate" oder "stalemate"
 let pendingPromotion = null; // Zielfeld { row, column }, solange das Umwandlungs-Fenster offen ist
 let trainerSettings = loadTrainerSettings(); // Tipps pro Spieler: { white: true, black: false }
+let moveList = []; // alle Züge der Partie in Notation: ["e4", "e5", "Sf3", ...]
 
 function isSameSquare(square, row, column) {
   return square !== null && square.row === row && square.column === column;
@@ -90,6 +91,26 @@ function renderBoard() {
   });
 
   boardElement.innerHTML = squaresHtml;
+}
+
+// ["e4", "e5", "Sf3"] -> [["e4", "e5"], ["Sf3"]]: je ein Zug von Weiß und Schwarz
+function getMovePairs() {
+  const movePairs = [];
+  for (let index = 0; index < moveList.length; index += 2) {
+    movePairs.push(moveList.slice(index, index + 2));
+  }
+  return movePairs;
+}
+
+// Protokoll neu bauen und ans Ende scrollen, damit der neueste Zug sichtbar ist
+function renderMoveList() {
+  const moveListElement = document.querySelector("#move-list");
+  moveListElement.innerHTML = getMovePairs()
+    .map((movePair, index) =>
+      buildMovePair(index + 1, movePair[0], movePair[1] ?? ""),
+    )
+    .join("");
+  moveListElement.scrollLeft = moveListElement.scrollWidth;
 }
 
 // Was ist gewählt, und wohin darf die Figur?
@@ -192,6 +213,7 @@ function announce(text) {
 function render() {
   renderBoard();
   renderClocks();
+  renderMoveList();
   if (isView3dActive()) view3d.render();
   renderTrainerToggles();
   announce(getTrainerText());
@@ -242,6 +264,7 @@ function initTrainerToggles() {
 
 // Alles auf Anfang: neues Brett, Weiß beginnt, nichts gewählt
 function resetGame() {
+  moveList = [];
   board = createStartBoard();
   currentColor = "white";
   selectedSquare = null;
@@ -300,21 +323,17 @@ function createMoveRecord(row, column, promotionType) {
   };
 }
 
-// Gewählte Figur auf das Zielfeld ziehen, Zug merken, Spieler wechseln
+// Gewählte Figur auf das Zielfeld ziehen, Zug merken und ins Protokoll schreiben, Spieler wechseln
 function moveSelectedPiece(row, column, promotionType) {
-  lastMove = createMoveRecord(row, column, promotionType);
-  movePiece(
-    board,
-    selectedSquare.row,
-    selectedSquare.column,
-    row,
-    column,
-    promotionType,
-  );
+  const move = createMoveRecord(row, column, promotionType);
+  const notation = getMoveNotation(board, move, lastMove);
+  movePiece(board, move.fromRow, move.fromColumn, row, column, promotionType);
+  lastMove = move;
   selectedSquare = null;
   legalSquares = [];
   switchTurn();
   gameStatus = getGameStatus(board, currentColor, lastMove);
+  moveList.push(`${notation}${checkSigns[gameStatus]}`);
 }
 
 // Umwandlungs-Fenster öffnen; gezogen wird erst, wenn eine Figur gewählt ist

@@ -47,7 +47,18 @@ const checkSigns = {
   check: "+",
   checkmate: "#",
   stalemate: "",
+  insufficientMaterial: "",
+  fiftyMoves: "",
+  repetition: "",
 };
+
+// Diese Spielstände enden unentschieden (Remis)
+const drawStatuses = [
+  "stalemate",
+  "insufficientMaterial",
+  "fiftyMoves",
+  "repetition",
+];
 
 // So zieht jede Figur: Texte für die Trainer-Zeile
 const pieceRules = {
@@ -74,6 +85,12 @@ const statusTexts = {
     "En passant! Dein Bauer hat den gegnerischen Bauern im Vorbeigehen geschlagen.",
   stalemate:
     "Patt! Es ist kein Zug mehr möglich, aber der König steht nicht im Schach. Die Partie endet unentschieden, im Schach sagt man Remis.",
+  insufficientMaterial:
+    "Remis! Es sind zu wenig Figuren übrig: Damit kann niemand mehr schachmatt setzen.",
+  fiftyMoves:
+    "Remis nach der 50-Züge-Regel: 50 Züge lang hat niemand einen Bauern gezogen oder eine Figur geschlagen.",
+  repetition:
+    "Remis durch dreifache Wiederholung: Dieselbe Stellung stand jetzt zum dritten Mal auf dem Brett.",
 };
 
 // Gewählte Ansicht merken. try/catch: im privaten Fenster kann localStorage fehlen

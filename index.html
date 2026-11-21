@@ -143,6 +143,27 @@
       </div>
     </dialog>
 
+    <!--Neue Partie: Spielmodus wählen. Der Hinweis erscheint nur, wenn gerade eine Partie läuft-->
+    <dialog class="mode-dialog" id="mode-dialog" aria-labelledby="mode-title">
+      <h2 class="mode-title" id="mode-title">Neue Partie</h2>
+      <p class="mode-warning" id="mode-warning" hidden>
+        Die laufende Partie geht dabei verloren.
+      </p>
+      <div class="mode-options">
+        <button class="mode-option" type="button" data-mode="twoPlayers">
+          <span class="mode-option-name">Zu zweit</span>
+          <span class="mode-option-text">Ihr spielt abwechselnd an einem Gerät.</span>
+        </button>
+        <button class="mode-option" type="button" data-mode="computer">
+          <span class="mode-option-name">Gegen den Computer</span>
+          <span class="mode-option-text">
+            Du spielst Weiß. Stufe Anfänger: Der Computer zieht zufällig.
+          </span>
+        </button>
+      </div>
+      <button class="mode-cancel" type="button">Abbrechen</button>
+    </dialog>
+
     <!--Reihenfolge wichtig: Hilfsfunktionen und Daten zuerst, script.js zuletzt-->
     <script src="./script/helper.js"></script>
     <script src="./script/template.js"></script>
